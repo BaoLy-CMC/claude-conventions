@@ -40,6 +40,7 @@ Four lifecycle events. All fail-open (never break a tool call on error). Escape 
 | Event | Script | What it does |
 |-------|--------|--------------|
 | `SessionStart` | `session-start.py` | Inject the baseline; if `.finx/state_summary.md` is fresh, append it under a RESUME banner |
+| `SessionStart` | `version-notice.py` | When the installed finx-core version changed since last session, print the new version and its changelog notes |
 | `PreToolUse` (Write/Edit) | `precheck.py` | Hard-block high-confidence violations: `var` in new code, `double`/`float` for money, `System.out`/`printStackTrace`, hardcoded secrets |
 | `PreToolUse` (Write/Edit) | `flow-gate.py` | Block non-trivial production-Java edits unless a ready-to-execute signal is present (see [Flow](flow.md)) |
 | `UserPromptSubmit` | `context-watch.py` | Estimate context usage; at ~65% ask whether to compact, save+reset, or continue |

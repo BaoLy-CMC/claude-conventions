@@ -2,6 +2,20 @@
 
 All notable changes to the `finx-core` plugin are documented here. Follows [Semantic Versioning](https://semver.org/).
 
+## [0.22.0] - 2026-07-09
+
+### Added
+- Hook `version-notice` (SessionStart) — records the installed finx-core version per engineer and, when it changes between sessions (Claude Code auto-updates plugins at startup via git pull), prints the new version and its changelog notes when reachable. Makes silent auto-updates visible.
+
+### Changed
+- `docs/*/releasing.md` — corrected the update model: plugins auto-update at startup (git pull of the marketplace); the manual commands only pull immediately without waiting for a restart.
+- `docs/*/reference.md` — SessionStart now lists both `session-start.py` and `version-notice.py`.
+
+## [0.21.0] - 2026-07-09
+
+### Changed
+- Version bump only (no functional change).
+
 ## [0.20.0] - 2026-07-09
 
 ### Changed

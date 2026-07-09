@@ -55,4 +55,4 @@ The authoritative prose lives in Confluence, space `EN` (Engineering), hub "Back
 
 ## Status
 
-`0.20.0`. 12 skills, 4 hook events, the full flow with a tool-agnostic gate, plan management, and the canonical -> Kiro/Claude generator. History in [CHANGELOG.md](CHANGELOG.md).
+`0.22.0`. 12 skills, 4 hook events, the full flow with a tool-agnostic gate, plan management, version-update notice, and the canonical -> Kiro/Claude generator. History in [CHANGELOG.md](CHANGELOG.md).

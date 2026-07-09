@@ -55,4 +55,4 @@ Văn bản chuẩn nằm ở Confluence, space `EN` (Engineering), trang hub "Ba
 
 ## Trạng thái
 
-`0.20.0`. 12 skill, 4 hook event, flow đầy đủ với gate tool-agnostic, quản lý plan, và generator canonical -> Kiro/Claude. Lịch sử trong [CHANGELOG.md](CHANGELOG.md).
+`0.22.0`. 12 skill, 4 hook event, flow đầy đủ với gate tool-agnostic, quản lý plan, thông báo cập nhật version, và generator canonical -> Kiro/Claude. Lịch sử trong [CHANGELOG.md](CHANGELOG.md).

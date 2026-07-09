@@ -46,13 +46,17 @@ Version nằm ở hai file và phải khớp: `plugins/finx-core/.claude-plugin/
 
 ## Quy trình update (engineer)
 
+Claude Code tự cập nhật plugin lúc khởi động: khi restart nó `git pull` marketplace và lấy version mới (vì mỗi release đều bump version). Nên cách thường là chỉ cần **restart Claude Code**. Hook `version-notice` sẽ in ở đầu phiên rằng finx-core đã lên version mới và thay đổi gì.
+
+Muốn lấy ngay, không đợi restart:
+
 ```
 /plugin marketplace update finx-conventions
 /plugin update finx-core
 /reload-plugins
 ```
 
-Rồi mở session mới (hoặc `/clear`) để hook `SessionStart` nạp lại baseline mới. Việc đọc hook và config (`flow-gate`, `context-watch`) có hiệu lực ở tool call kế tiếp, không cần reload.
+Sau cả hai cách, mở session mới (hoặc `/clear`) để hook `SessionStart` nạp lại baseline mới. Việc đọc hook và config (`flow-gate`, `context-watch`) có hiệu lực ở tool call kế tiếp, không cần reload.
 
 ## Cài đặt lần đầu
 

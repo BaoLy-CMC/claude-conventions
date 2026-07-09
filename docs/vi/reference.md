@@ -40,6 +40,7 @@ Bốn sự kiện lifecycle. Tất cả fail-open (không làm hỏng tool call 
 | Sự kiện | Script | Làm gì |
 |---------|--------|--------|
 | `SessionStart` | `session-start.py` | Nạp baseline; nếu `.finx/state_summary.md` còn mới thì append kèm banner RESUME |
+| `SessionStart` | `version-notice.py` | Khi version finx-core cài đã đổi so với phiên trước, in version mới và changelog của nó |
 | `PreToolUse` (Write/Edit) | `precheck.py` | Chặn cứng vi phạm xác định cao: `var` trong code mới, `double`/`float` cho tiền, `System.out`/`printStackTrace`, secret hardcode |
 | `PreToolUse` (Write/Edit) | `flow-gate.py` | Chặn edit production Java non-trivial trừ khi có tín hiệu sẵn-sàng-execute (xem [Flow](flow.md)) |
 | `UserPromptSubmit` | `context-watch.py` | Ước lượng % context; quanh ~65% hỏi nên compact, save+reset, hay tiếp tục |

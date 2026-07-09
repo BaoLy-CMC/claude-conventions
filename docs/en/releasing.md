@@ -46,13 +46,17 @@ The version lives in two files and must match: `plugins/finx-core/.claude-plugin
 
 ## Engineer update workflow
 
+Claude Code auto-updates plugins at startup: on restart it does a `git pull` of the marketplace and picks up the new version (because each release bumps the version string). So the normal path is simply **restart Claude Code**. The `version-notice` hook then prints, at session start, that finx-core moved to the new version and what changed.
+
+To pull immediately, without waiting for a restart:
+
 ```
 /plugin marketplace update finx-conventions
 /plugin update finx-core
 /reload-plugins
 ```
 
-Then start a new session (or `/clear`) so the `SessionStart` hook re-injects the updated baseline. Hook and config reads (`flow-gate`, `context-watch`) take effect on the next tool call and need no reload.
+After either path, start a new session (or `/clear`) so the `SessionStart` hook re-injects the updated baseline. Hook and config reads (`flow-gate`, `context-watch`) take effect on the next tool call and need no reload.
 
 ## First-time install
 
