@@ -2,6 +2,12 @@
 
 All notable changes to the `finx-core` plugin are documented here. Follows [Semantic Versioning](https://semver.org/).
 
+## [0.19.0] - 2026-07-09
+
+### Added
+- **Version-aware runtime rules.** Baseline no longer hardcodes Java 21; it now says versions vary per project (Java 21 or 25 LTS; Spring Boot 3 or 4), detected from build files, and forbids using features newer than the project's declared version.
+- Skill `runtime-stack` — detects a project's Java + Spring Boot version and gives the per-version do/don't (Java 21 vs 25 language features; Spring Boot 3 vs 4: Jakarta EE 9/10 vs 11, Jackson 2 vs 3, removed deprecations, dropped Undertow/JUnit4, modular JARs) plus the 3→4 upgrade path. Cites the official migration guide.
+
 ## [0.18.0] - 2026-07-09
 
 ### Added

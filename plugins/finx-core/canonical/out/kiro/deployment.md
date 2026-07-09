@@ -1,6 +1,6 @@
 # Deployment Workflow — FinX Steering
 
-Product: FinX / Vikki banking platform (SBV-compliant). Stack: Java 21 + Spring Boot microservices. Source: Confluence space EN (Engineering).
+Product: FinX / Vikki banking platform (SBV-compliant). Stack: Java 21 or 25 (LTS) + Spring Boot 3 or 4 microservices, per project. Source: Confluence space EN (Engineering).
 
 > Generated from the FinX canonical convention source. Do not hand-edit.
 

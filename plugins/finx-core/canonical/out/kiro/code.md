@@ -1,6 +1,6 @@
 # Code Convention — FinX Steering
 
-Product: FinX / Vikki banking platform (SBV-compliant). Stack: Java 21 + Spring Boot microservices. Source: Confluence space EN (Engineering).
+Product: FinX / Vikki banking platform (SBV-compliant). Stack: Java 21 or 25 (LTS) + Spring Boot 3 or 4 microservices, per project. Source: Confluence space EN (Engineering).
 
 > Generated from the FinX canonical convention source. Do not hand-edit.
 
@@ -18,6 +18,10 @@ Product: FinX / Vikki banking platform (SBV-compliant). Stack: Java 21 + Spring 
 - Currency: BigDecimal, never double/float.
 - Constructor injection only — no @Autowired field injection.
 - Config externalised — ${ENV_VAR:default} in yml, never hardcoded (URLs, timeouts, limits, topics, flags). Secrets via env/secret-manager, never committed.
+
+## Runtime versions (per project)
+- Java (21 or 25 LTS) and Spring Boot (3 or 4) vary by project. DETECT the target from the build files (Gradle toolchain / `libs.versions.toml` / Maven `java.version` + the spring-boot plugin/parent version) and follow that version's rules. Never use a language feature or API newer than the project's declared version; if a newer feature would help, flag it and ask.
+- Spring Boot 4 = Jakarta EE 11 / Servlet 6.1 / Jackson 3, minimum Java 21, all Boot-3 deprecations removed, Undertow/JUnit4 dropped. Spring Boot 3 = Jakarta EE 9-10 (`jakarta.*`), Java 17+. Use the `runtime-stack` skill for the per-version do/don't.
 
 ## Response envelope (by cluster)
 - Repo fsap-* -> com.finx.common.fsap.pojo.FsapApiResponse (+ common.fsap exception/advice/header/JWT helpers).
