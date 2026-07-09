@@ -28,21 +28,23 @@ Version nằm ở hai file và phải khớp: `plugins/finx-core/.claude-plugin/
 
 ## Quy trình release (maintainer)
 
-1. Sửa (như trên).
-2. Bump + regenerate trong một bước:
+1. Sửa (như trên) và **commit với message conventional** (`feat:`, `fix:`, `docs:`, ...) - CHANGELOG được sinh nháp từ đây.
+2. Bump + regenerate + sinh nháp CHANGELOG trong một bước:
    ```bash
-   ./release.sh 0.21.0
+   ./release.sh 0.23.0
    ```
-   Nó đặt version ở cả hai manifest và chạy generator.
-3. Thêm section `[0.21.0]` vào `CHANGELOG.md` mô tả sửa gì và vì sao.
-4. Commit, tag, push:
+   Nó đặt version ở cả hai manifest, chạy generator, và chạy `changelog.sh` để sinh nháp entry `[0.23.0]` từ các conventional commit kể từ tag gần nhất.
+3. **Tinh chỉnh** entry nháp bằng skill `write-changelog` - biến dòng commit cụt thành ghi chú user-facing nói rõ sửa gì và vì sao - rồi duyệt.
+4. Commit release và tag:
    ```bash
    git add -A
-   git commit -m "feat: <sửa gì> (finx-core 0.21.0)"
-   git tag v0.21.0
+   git commit -m "chore: release finx-core 0.23.0"
+   git tag v0.23.0
    git push && git push --tags
    ```
-5. Thông báo version và lý do một dòng.
+5. Thông báo (tùy chọn - engineer tự update khi restart).
+
+CHANGELOG là hybrid: `changelog.sh` sinh nháp deterministic từ commit; skill `write-changelog` thêm văn xuôi. Chạy `./changelog.sh <version>` riêng để (tái) sinh nháp mà không bump.
 
 ## Quy trình update (engineer)
 

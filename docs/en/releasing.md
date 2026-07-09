@@ -28,21 +28,23 @@ The version lives in two files and must match: `plugins/finx-core/.claude-plugin
 
 ## Maintainer release workflow
 
-1. Make the change (above).
-2. Bump + regenerate in one step:
+1. Make the change (above) and **commit it with conventional messages** (`feat:`, `fix:`, `docs:`, ...) - the CHANGELOG is drafted from these.
+2. Bump + regenerate + draft the CHANGELOG in one step:
    ```bash
-   ./release.sh 0.21.0
+   ./release.sh 0.23.0
    ```
-   This sets the version in both manifests and runs the generator.
-3. Add a `[0.21.0]` section to `CHANGELOG.md` describing what changed and why.
-4. Commit, tag, push:
+   This sets the version in both manifests, runs the generator, and runs `changelog.sh` to draft a `[0.23.0]` entry from the conventional commits since the last tag.
+3. **Refine** the drafted entry with the `write-changelog` skill - turn terse commit lines into user-facing notes that say what changed and why - and approve.
+4. Commit the release and tag:
    ```bash
    git add -A
-   git commit -m "feat: <what changed> (finx-core 0.21.0)"
-   git tag v0.21.0
+   git commit -m "chore: release finx-core 0.23.0"
+   git tag v0.23.0
    git push && git push --tags
    ```
-5. Announce the version and the one-line reason.
+5. Announce (optional - engineers auto-update on restart).
+
+The CHANGELOG is hybrid: `changelog.sh` drafts deterministically from commits; the `write-changelog` skill adds the prose. Run `./changelog.sh <version>` on its own to (re)draft without bumping.
 
 ## Engineer update workflow
 

@@ -43,9 +43,12 @@ PY
 echo "regenerating canonical artifacts..."
 python3 "$ROOT/plugins/finx-core/canonical/generate.py"
 
+echo "drafting CHANGELOG from conventional commits..."
+"$ROOT/changelog.sh" "$VERSION"
+
 echo
 echo "Next (manual):"
-echo "  1. Add a [$VERSION] entry to CHANGELOG.md"
+echo "  1. Refine the drafted [$VERSION] CHANGELOG entry (write-changelog skill), then approve."
 echo "  2. git add -A && git commit -m \"chore: release finx-core $VERSION\""
 echo "  3. git tag v$VERSION && git push && git push --tags"
-echo "  4. Announce: engineers run /plugin marketplace update finx-conventions, then /reload-plugins"
+echo "  4. Announce (optional): engineers auto-update on restart; /plugin marketplace update finx-conventions to pull now."
