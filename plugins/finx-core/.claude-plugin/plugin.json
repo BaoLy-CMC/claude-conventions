@@ -1,0 +1,17 @@
+{
+  "name": "finx-core",
+  "description": "Core FinX backend conventions encoded as machine-checkable Claude Code skills and hooks. Source of truth: Confluence space EN (Engineering).",
+  "version": "0.18.0",
+  "author": {
+    "name": "FinX Backend Engineering",
+    "email": "share.fsap@galaxyfinx.com"
+  },
+  "keywords": [
+    "finx",
+    "banking",
+    "java",
+    "spring-boot",
+    "conventions",
+    "sbv"
+  ]
+}
