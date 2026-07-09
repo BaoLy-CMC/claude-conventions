@@ -2,6 +2,11 @@
 
 All notable changes to the `finx-core` plugin are documented here. Follows [Semantic Versioning](https://semver.org/).
 
+## [0.23.0] - 2026-07-09
+
+### Added
+- **Hybrid CHANGELOG workflow.** `changelog.sh` drafts a release entry deterministically from the conventional commits since the last tag (grouped Added/Changed/Fixed/Docs); the new `write-changelog` skill then refines it into user-facing notes that say what changed and why. `release.sh` runs the draft step automatically, so cutting a release no longer needs a hand-written changelog - only a review of the draft.
+
 ## [0.22.0] - 2026-07-09
 
 ### Added
