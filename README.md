@@ -46,6 +46,7 @@ claude --plugin-dir ./plugins/finx-core
 
 ## Docs
 
+- [`docs/overview.en.md`](docs/overview.en.md) / [`docs/overview.vi.md`](docs/overview.vi.md) — team overview (English / Vietnamese).
 - [`docs/flow.md`](docs/flow.md) — the explore → plan → execute → review → reset flow, state, enforcement, context-watch.
 - [`docs/releasing.md`](docs/releasing.md) — release workflow (maintainers) and update workflow (engineers).
 
