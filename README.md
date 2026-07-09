@@ -26,15 +26,18 @@ claude --plugin-dir ./plugins/finx-core
 
 | Dir | Purpose |
 |---|---|
-| `skills/` | On-demand playbooks Claude invokes by context: `logging-review`, `error-handling-review`, `create-liquibase-changeset`, `cross-repo-operations`, `new-service-scaffold` |
+| `skills/` (reviews) | `logging-review`, `error-handling-review`, `pre-ship` (full verify gate) |
+| `skills/` (flow) | `flow` (`/flow <phase>` explore→plan→execute→review→reset), `plans`, `plan-tidy`, `flow-setup` (per-engineer config) |
+| `skills/` (authoring) | `create-liquibase-changeset`, `cross-repo-operations`, `new-service-scaffold`, `write-docs` |
 | `hooks/` | `hooks.json` — **SessionStart** injects the baseline + resumes `.finx/state_summary.md`; **PreToolUse** runs the force-guard (`var`/money-`double`/`System.out`/secrets) and the flow-gate (block non-trivial prod-Java edits outside `execute`); **UserPromptSubmit** context-watch (ask to compact/reset at ~65%); **PreCompact** snapshots flow state. Escape hatch: `FINX_SKIP_HOOKS=1`. |
-| `skills/flow`, `skills/plans`, `skills/plan-tidy` | The `explore→plan→execute→review→reset` flow (`/flow <phase>`), plan management under `.finx/plans/`, and root-plan migration. |
 | `canonical/` | `conventions.json` + `generate.py` — single source that generates **both** the Claude baseline (`hooks/baseline-rules.md`) and the Kiro steering files (`out/kiro/*.md`) |
 
 > **Note on always-on rules:** Claude Code plugins do **not** auto-load `CLAUDE.md`. The non-negotiable baseline is injected each session via a **SessionStart hook** (generated from `canonical/conventions.json`); detailed rules load on-demand as skills. Standard subagents are provided per-engineer, not by this plugin.
 
 ## Rule highlights (verified against the codebase)
 
+- **Working principles (always-on):** think first / never assume silently (ask with a recommendation), KISS not over-engineering, think deep + ship simple, surgical changes, verifiable success, honest reporting, reversible-first. Significant architecture choices (hexagonal/onion/layered, sync vs event, saga vs 2PC) must be asked with trade-offs + a recommendation.
+- **Communication:** lead with the answer, concise and skimmable, cite references; no rambling.
 - **Lombok: allowed.** `var`: banned in **new/modified** code only (no mass refactor).
 - **Currency: `BigDecimal`**, never `double`.
 - **Response envelope by cluster:** `fsap-*` repos → `com.finx.common.fsap.pojo.FsapApiResponse`; non-fsap repos → `com.finx.spring.service.api.ResponseApi` (no new local copies).
@@ -59,4 +62,4 @@ Edit `canonical/conventions.json`, run the generator, commit the regenerated `ba
 
 ## Status
 
-**0.6.0.** All planned batches built: baseline hook, review skills (`logging-review`, `error-handling-review`), cross-repo skills (`create-liquibase-changeset`, `cross-repo-operations`), `new-service-scaffold`, PreToolUse force guard, and the canonical → Kiro/Claude generator.
+**0.18.0.** 11 skills, 4 hook events (SessionStart, PreToolUse, UserPromptSubmit, PreCompact), the full explore→plan→execute→review→reset flow with gate + context-watch, plan management, `write-docs`, `pre-ship` gate, and the canonical → Kiro/Claude generator. See `CHANGELOG.md`.
