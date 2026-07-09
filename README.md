@@ -1,66 +1,58 @@
 # FinX Claude Conventions
 
-Company-wide [Claude Code](https://claude.com/claude-code) conventions for the **FinX banking platform** (SBV-compliant, Java 21 + Spring Boot microservices).
+Tiếng Việt: [README.vi.md](README.vi.md)
 
-This repo is a **Claude Code plugin marketplace**. It ships one plugin — `finx-core` — that encodes the company's engineering standards as **machine-checkable skills and hooks**, so every engineer's Claude Code applies the same rules.
+A shared [Claude Code](https://claude.com/claude-code) plugin (`finx-core`) that encodes FinX backend engineering standards as machine-checkable rules, skills, and hooks, so every engineer's Claude Code behaves the same way. Java 21/25, Spring Boot 3/4, SBV-compliant banking.
+
+## Quickstart
+
+```
+/plugin marketplace add <internal-git-url>
+/plugin install finx-core@finx-conventions
+/reload-plugins
+```
+
+Start a new session so the always-on baseline loads. Optionally run `/flow-setup` to personalize; otherwise standard defaults apply.
+
+## At a glance
+
+| Layer | What it does | Where |
+|-------|--------------|-------|
+| Baseline | Always-on rules injected every session | `SessionStart` hook (generated from canonical) |
+| Guards | Block bad edits before they land | `PreToolUse` hooks |
+| Skills | On-demand playbooks (reviews, flow, authoring) | `skills/` |
+| Flow | `explore -> plan -> execute -> review -> reset` | `flow` skill + `.finx/` state |
+
+## Architecture (one picture)
+
+```
+Confluence space EN            <- source of truth (humans read)
+        |
+        v
+canonical/conventions.json --generate.py--> Kiro steering (canonical/out/kiro/*.md)
+        |                                    Claude baseline (hooks/baseline-rules.md)
+        v
++------------------- finx-core plugin -------------------+
+|  baseline : SessionStart injects rules each session    |
+|  hooks    : PreToolUse guard + flow-gate;              |
+|             UserPromptSubmit context-watch; PreCompact |
+|  skills   : reviews / flow / authoring (on-demand)     |
+|  flow     : explore->plan->execute->review->reset      |
++--------------------------------------------------------+
+```
+
+## Documentation
+
+- [Overview](docs/en/overview.md) - the mental model and how the pieces fit.
+- [Rules](docs/en/rules.md) - the always-on baseline conventions.
+- [Reference](docs/en/reference.md) - every skill and hook.
+- [Flow](docs/en/flow.md) - the development flow, gate, context-watch, plan management.
+- [Releasing](docs/en/releasing.md) - how to change a convention, release, and update.
 
 ## Source of truth
 
-The authoritative standards live in **Confluence, space `EN` (Engineering)** — hub: *Backend - Conventions & Standards*. This plugin does **not** duplicate that prose; it encodes the enforceable parts. Each skill/hook cites its `Source: <Confluence page id>`.
-
-## Install
-
-```bash
-# In Claude Code
-/plugin marketplace add <git-url-or-local-path>
-/plugin install finx-core@finx-conventions
-```
-
-Local test before publishing:
-
-```bash
-claude --plugin-dir ./plugins/finx-core
-```
-
-## What's inside (`plugins/finx-core/`)
-
-| Dir | Purpose |
-|---|---|
-| `skills/` (reviews) | `logging-review`, `error-handling-review`, `pre-ship` (full verify gate) |
-| `skills/` (flow) | `flow` (`/flow <phase>` explore→plan→execute→review→reset), `plans`, `plan-tidy`, `flow-setup` (per-engineer config) |
-| `skills/` (authoring) | `create-liquibase-changeset`, `cross-repo-operations`, `new-service-scaffold`, `write-docs` |
-| `hooks/` | `hooks.json` — **SessionStart** injects the baseline + resumes `.finx/state_summary.md`; **PreToolUse** runs the force-guard (`var`/money-`double`/`System.out`/secrets) and the flow-gate (block non-trivial prod-Java edits outside `execute`); **UserPromptSubmit** context-watch (ask to compact/reset at ~65%); **PreCompact** snapshots flow state. Escape hatch: `FINX_SKIP_HOOKS=1`. |
-| `canonical/` | `conventions.json` + `generate.py` — single source that generates **both** the Claude baseline (`hooks/baseline-rules.md`) and the Kiro steering files (`out/kiro/*.md`) |
-
-> **Note on always-on rules:** Claude Code plugins do **not** auto-load `CLAUDE.md`. The non-negotiable baseline is injected each session via a **SessionStart hook** (generated from `canonical/conventions.json`); detailed rules load on-demand as skills. Standard subagents are provided per-engineer, not by this plugin.
-
-## Rule highlights (verified against the codebase)
-
-- **Working principles (always-on):** think first / never assume silently (ask with a recommendation), KISS not over-engineering, think deep + ship simple, surgical changes, verifiable success, honest reporting, reversible-first. Significant architecture choices (hexagonal/onion/layered, sync vs event, saga vs 2PC) must be asked with trade-offs + a recommendation.
-- **Communication:** lead with the answer, concise and skimmable, cite references; no rambling.
-- **Lombok: allowed.** `var`: banned in **new/modified** code only (no mass refactor).
-- **Currency: `BigDecimal`**, never `double`.
-- **Response envelope by cluster:** `fsap-*` repos → `com.finx.common.fsap.pojo.FsapApiResponse`; non-fsap repos → `com.finx.spring.service.api.ResponseApi` (no new local copies).
-- **Error codes:** `ErrorCode` enum, `DOMAIN.CODE` format — no free-form strings.
-- **Cross-repo operations (non-prod):** DB migrations → `non-prod-liquibase`; important env → ask + confirm, then `non-prod-application-workload`; Kafka topics → `non-prod-kafka-gitops`; public (mobile) APIs → `non-prod-apigw-configs` + `non-prod-openapi-configs`. Prod goes through a separate release process.
-
-## Docs
-
-- [`docs/overview.en.md`](docs/overview.en.md) / [`docs/overview.vi.md`](docs/overview.vi.md) — team overview (English / Vietnamese).
-- [`docs/flow.md`](docs/flow.md) — the explore → plan → execute → review → reset flow, state, enforcement, context-watch.
-- [`docs/releasing.md`](docs/releasing.md) — release workflow (maintainers) and update workflow (engineers).
-
-## Governance
-
-SemVer in `plugin.json`; every version bump recorded in `CHANGELOG.md`. Use `./release.sh <version>` to bump both manifests consistently and regenerate. Reviewed quarterly.
-
-## Regenerate artifacts
-
-```bash
-python3 plugins/finx-core/canonical/generate.py
-```
-Edit `canonical/conventions.json`, run the generator, commit the regenerated `baseline-rules.md` + `out/kiro/*.md`.
+The authoritative prose lives in Confluence, space `EN` (Engineering), hub "Backend - Conventions & Standards". This plugin encodes the enforceable parts and cites the source page. To change a rule, edit `canonical/conventions.json`, run the generator, and cut a release - see [Releasing](docs/en/releasing.md).
 
 ## Status
 
-**0.18.0.** 11 skills, 4 hook events (SessionStart, PreToolUse, UserPromptSubmit, PreCompact), the full explore→plan→execute→review→reset flow with gate + context-watch, plan management, `write-docs`, `pre-ship` gate, and the canonical → Kiro/Claude generator. See `CHANGELOG.md`.
+`0.20.0`. 12 skills, 4 hook events, the full flow with a tool-agnostic gate, plan management, and the canonical -> Kiro/Claude generator. History in [CHANGELOG.md](CHANGELOG.md).
