@@ -2,6 +2,11 @@
 
 All notable changes to the `finx-core` plugin are documented here. Follows [Semantic Versioning](https://semver.org/).
 
+## [0.20.0] - 2026-07-09
+
+### Changed
+- **Tool-agnostic flow-gate.** The gate now opens on any of: `flow.json` `phase: execute`, `flow.json` `approved: true`, or an `activePlan` whose `plan.md` `status` is `approved`/`in-progress` (created by any tool). Lets other planning/execute tools integrate via the shared `.finx/` artifacts instead of the `/flow` commands. Documented the integration contract in `docs/flow.md`.
+
 ## [0.19.0] - 2026-07-09
 
 ### Added

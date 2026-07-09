@@ -59,6 +59,37 @@ def load_config(repo_root: str) -> dict:
     return cfg
 
 
+def active_plan_ready(repo_root: str, flow: dict) -> bool:
+    """True if the active plan exists and is approved/in-progress.
+
+    Integration contract: any tool can satisfy the gate by pointing
+    flow.json.activePlan at a plan whose frontmatter status is approved or
+    in-progress — it does not have to be created by the `/flow` commands.
+    """
+    rel = flow.get("activePlan")
+    if not rel:
+        return False
+    path = rel if os.path.isabs(rel) else os.path.join(repo_root, rel)
+    try:
+        with open(path, encoding="utf-8") as fh:
+            for line in fh:
+                s = line.strip().lower()
+                if s.startswith("status:"):
+                    return s.split(":", 1)[1].strip() in ("approved", "in-progress")
+    except Exception:
+        return False
+    return False
+
+
+def gate_open(repo_root: str, flow: dict) -> bool:
+    """Tool-agnostic 'ready to execute' check — any one signal is enough."""
+    return (
+        flow.get("phase") == "execute"          # the finx /flow execute phase
+        or flow.get("approved") is True          # generic marker any tool can set
+        or active_plan_ready(repo_root, flow)    # an approved active plan (any origin)
+    )
+
+
 def main() -> int:
     if os.environ.get("FINX_SKIP_HOOKS"):
         return 0
@@ -94,8 +125,8 @@ def main() -> int:
     except Exception:
         return 0
 
-    if flow.get("phase") == "execute" and flow.get("activePlan"):
-        return 0  # in execute with an active plan -> allowed
+    if gate_open(repo_root, flow):
+        return 0  # a ready-to-execute signal is present -> allowed
 
     # Trivial changes pass even outside execute — unless enforcement is "hard".
     content = new_content(ti)
@@ -108,7 +139,9 @@ def main() -> int:
         f"  Editing production code ({os.path.basename(path)}, ~{changed_lines} lines) "
         f"but the flow phase is '{flow.get('phase', 'idle')}', not 'execute'.\n"
         "  Non-trivial work needs an approved plan first.\n"
-        "  -> Run `/flow plan`, get it approved, then `/flow execute`.\n"
+        "  Gate opens on any of: flow.json phase=execute, an approved active plan "
+        "in .finx/plans/ (status approved/in-progress, any tool), or flow.json approved:true.\n"
+        "  -> Run `/flow plan` + approve, then `/flow execute`.\n"
         "  (Trivial edits <= {} lines pass; or set FINX_SKIP_HOOKS=1 for a one-off.)\n".format(
             cfg["trivialMaxLines"]
         )

@@ -46,6 +46,20 @@ Prefer `/compact` at the threshold when possible (native, keeps the phase automa
 
 `/flow-setup` writes `~/.finx/flow-config.json` (per engineer) and/or `<repo>/.finx/flow-config.json` (per project, project wins). Keys: `enforcement`, `contextThreshold`, `contextLimit`, `trivialMaxLines`, `maxActivePlans`, `autoArchiveDays`. Missing file means standard defaults.
 
+## Integration with other planning/execute tools
+
+The flow integrates through shared state artifacts, not through owning the commands — so an engineer's own plugins or planning tools coexist with it.
+
+- **Opt-in.** A repo with no `.finx/flow.json` is never gated; personal tooling is unaffected.
+- **Flow-independent features** work regardless of how you plan/execute: the baseline rules, force-guard, review skills, `context-watch`, `write-docs`, and `runtime-stack`.
+- **Gate contract.** The flow-gate opens on any one of these signals, whichever tool produces it:
+  - `.finx/flow.json` has `"phase": "execute"`;
+  - `.finx/flow.json` has `"approved": true`;
+  - `.finx/flow.json.activePlan` points to a `plan.md` whose frontmatter `status` is `approved` or `in-progress` (created by any tool, not just `/flow`).
+- **Disable per engineer.** Set `enforcement: guided` (track, never block) or `off` in `~/.finx/flow-config.json` to keep everything except the gate while using your own flow.
+
+So another tool integrates by writing the shared `.finx/flow.json` / `.finx/plans/` artifacts; it does not need to be a finx-core command.
+
 ## Related skills
 
 - `plans`, `plan-tidy` — plan lifecycle and migrating loose root `plan*.md` files.
