@@ -2,6 +2,11 @@
 
 All notable changes to the `finx-core` plugin are documented here. Follows [Semantic Versioning](https://semver.org/).
 
+## [0.23.1] - 2026-07-10
+
+### Fixed
+- **context-watch reported ~5x too much context usage.** The hook divided token usage by a limit inferred from the transcript's `message.model`, which drops the `[1m]` marker (records e.g. `claude-opus-4-8`), so it always fell back to the 200k window - showing ~90% when a 1M-context session was only ~19% full. It now resolves the limit from the model the user actually selected (`.claude/settings.local.json` -> project `.claude/settings.json` -> `~/.claude/settings.json`), detecting the `[1m]` context mode there. An explicit `contextLimit` in `flow-config.json` still overrides.
+
 ## [0.23.0] - 2026-07-09
 
 ### Added

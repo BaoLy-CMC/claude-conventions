@@ -2,8 +2,10 @@
 """UserPromptSubmit hook — warn when context usage crosses a threshold.
 
 Estimates current context from the transcript's latest assistant `usage`
-(input + cache_read + cache_creation tokens) divided by the model's context
-limit. When it crosses the threshold (default 65%), it injects a note telling
+(input + cache_read + cache_creation tokens) divided by the context limit of
+the model the user selected (1M for the `[1m]` context mode, else 200k; an
+explicit `contextLimit` in flow-config.json overrides). When it crosses the
+threshold (default 65%), it injects a note telling
 Claude to ASK the user whether to /compact, save-state+clear+reload, or continue.
 
 Cannot read live token % directly and cannot run /clear or /compact itself —
@@ -32,7 +34,29 @@ def load_threshold(cwd: str) -> float:
     return DEFAULT_THRESHOLD
 
 
+def selected_model(cwd: str) -> str:
+    """The model the user selected, from settings (most specific first).
+
+    The transcript's `message.model` drops the `[1m]` beta marker (it records
+    e.g. `claude-opus-4-8`), so the 1M context mode is only visible here.
+    """
+    for path in (
+        os.path.join(cwd, ".claude", "settings.local.json"),
+        os.path.join(cwd, ".claude", "settings.json"),
+        os.path.expanduser("~/.claude/settings.json"),
+    ):
+        try:
+            with open(path, encoding="utf-8") as fh:
+                v = json.load(fh).get("model")
+                if v:
+                    return str(v)
+        except Exception:
+            pass
+    return ""
+
+
 def context_limit(model: str, cwd: str) -> int:
+    # 1. Explicit override wins.
     for path in (
         os.path.expanduser("~/.finx/flow-config.json"),
         os.path.join(cwd, ".finx", "flow-config.json"),
@@ -44,8 +68,10 @@ def context_limit(model: str, cwd: str) -> int:
                     return v
         except Exception:
             pass
-    m = (model or "").lower()
-    if "1m" in m or "[1m]" in m:
+    # 2. Depend on the model the user selected. The transcript model alone is
+    #    not enough (it lacks the [1m] marker), so also consult settings.
+    combined = " ".join(filter(None, (model, selected_model(cwd)))).lower()
+    if "1m" in combined:
         return 1_000_000
     return 200_000
 
