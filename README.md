@@ -2,9 +2,9 @@
 
 Tiếng Việt: [README.vi.md](README.vi.md)
 
-A shared [Claude Code](https://claude.com/claude-code) plugin (`finx-core`) that encodes FinX backend engineering standards as machine-checkable rules, skills, and hooks, so every engineer's Claude Code behaves the same way. Java 21/25, Spring Boot 3/4, SBV-compliant banking.
+Shared [Claude Code](https://claude.com/claude-code) plugin (`finx-core`). FinX backend standards as rules, skills and hooks — so every engineer's Claude behaves the same. Java 21/25, Spring Boot 3/4, SBV-compliant banking.
 
-## Quickstart
+## Install
 
 ```
 /plugin marketplace add https://github.com/BaoLy-CMC/claude-conventions.git
@@ -12,49 +12,62 @@ A shared [Claude Code](https://claude.com/claude-code) plugin (`finx-core`) that
 /reload-plugins
 ```
 
-Start a new session so the always-on baseline loads, then run `/finx-core:onboarding` — a ~2 minute tour of what runs automatically, what is opt-in, and how the flow works. The first sessions after install point at it too.
+Open a new session, then run **`/finx-core:onboarding`** — 2-minute tour, sets up your hub and options.
 
-## At a glance
+Two commands worth remembering:
 
-| Layer | What it does | Where |
-|-------|--------------|-------|
-| Baseline | Always-on rules injected every session | `SessionStart` hook (generated from canonical) |
-| Guards | Block bad edits before they land | `PreToolUse` hooks |
-| Skills | On-demand playbooks (reviews, flow, authoring) | `skills/` |
-| Flow | `explore -> plan -> execute -> review -> reset` | `flow` skill + `.finx/` state |
-| Per-engineer | Opt-in presentation: 3 output styles + a flow-aware statusline | `output-styles/`, `statusline-setup` |
-| Onboarding | First-run guided tour, then wires up the chosen opt-ins | `onboarding` skill + `SessionStart` notice |
+| | |
+|---|---|
+| `/flow explore <task>` | start non-trivial work |
+| `/finx-core:pre-ship` | before a PR |
 
-## Architecture (one picture)
+## How it works
 
-```
-Confluence space EN            <- source of truth (humans read)
-        |
-        v
-canonical/conventions.json --generate.py--> Kiro steering (canonical/out/kiro/*.md)
-        |                                    Claude baseline (hooks/baseline-rules.md)
-        v
-+------------------- finx-core plugin -------------------+
-|  baseline : SessionStart injects rules each session    |
-|  hooks    : PreToolUse guard + flow-gate;              |
-|             UserPromptSubmit context-watch; PreCompact |
-|  skills   : reviews / flow / authoring (on-demand)     |
-|  flow     : explore->plan->execute->review->reset      |
-+--------------------------------------------------------+
+```mermaid
+flowchart TD
+    C["Confluence EN<br/><i>source of truth</i>"] --> J["canonical/conventions.json"]
+    J -->|generate.py| B["hooks/baseline-rules.md<br/><i>Claude</i>"]
+    J -->|generate.py| K["canonical/out/kiro/*.md<br/><i>Kiro</i>"]
+    B --> P
+    subgraph P["finx-core plugin"]
+        direction LR
+        H1["<b>SessionStart</b><br/>inject baseline"]
+        H2["<b>PreToolUse</b><br/>guard + flow-gate"]
+        H3["<b>UserPromptSubmit</b><br/>context-watch"]
+        SK["<b>19 skills</b><br/>on-demand"]
+    end
 ```
 
-## Documentation
+- **Baseline** — always on, nothing to invoke.
+- **Guards** — block `var`, `double` for money, `System.out`, hardcoded secrets. Escape: `FINX_SKIP_HOOKS=1`.
+- **Skills** — load when relevant, or by name: reviews, authoring, ops. See [Reference](docs/en/reference.md).
+- **Per-engineer opt-ins** — 3 output styles + a flow-aware statusline. Never forced.
 
-- [Overview](docs/en/overview.md) - the mental model and how the pieces fit.
-- [Rules](docs/en/rules.md) - the always-on baseline conventions.
-- [Reference](docs/en/reference.md) - every skill and hook.
-- [Flow](docs/en/flow.md) - the development flow, gate, context-watch, plan management.
-- [Releasing](docs/en/releasing.md) - how to change a convention, release, and update.
+## The flow
 
-## Source of truth
+```mermaid
+flowchart LR
+    E[explore] --> P[plan] --> X[execute] --> R[review] --> Z[reset]
+    Z -.-> E
+```
 
-The authoritative prose lives in Confluence, space `EN` (Engineering), hub "Backend - Conventions & Standards". This plugin encodes the enforceable parts and cites the source page. To change a rule, edit `canonical/conventions.json`, run the generator, and cut a release - see [Releasing](docs/en/releasing.md).
+Non-trivial production Java is gated until a plan is approved. State is **per session**, so many sessions can run at once:
+
+```
+<hub>/plans/<group>/<repo>/NNN-slug/plan.md   every repo's plans, one place
+<hub>/sessions/<session_id>.json              one file per session
+```
+
+Hub is configurable (`hub` in `flow-config.json`, default `~/.finx/hub`). Details: [Flow](docs/en/flow.md).
+
+## Docs
+
+[Overview](docs/en/overview.md) · [Rules](docs/en/rules.md) · [Reference](docs/en/reference.md) · [Flow](docs/en/flow.md) · [Releasing](docs/en/releasing.md)
+
+## Changing a rule
+
+Prose lives in Confluence space `EN`, hub "Backend - Conventions & Standards". To change a rule: edit `canonical/conventions.json`, run the generator, cut a release — see [Releasing](docs/en/releasing.md).
 
 ## Status
 
-`1.1.0`. 19 skills, 4 hook events, the full flow with a tool-agnostic gate, plan management, version-update notice, the canonical -> Kiro/Claude generator, plus per-engineer opt-in presentation (3 output styles + a flow-aware statusline). History in [CHANGELOG.md](CHANGELOG.md).
+`2.0.0` · 19 skills · 4 hook events · [CHANGELOG](CHANGELOG.md)

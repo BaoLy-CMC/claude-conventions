@@ -2,59 +2,72 @@
 
 English: [README.md](README.md)
 
-Một plugin [Claude Code](https://claude.com/claude-code) dùng chung (`finx-core`) mã hóa bộ chuẩn kỹ thuật backend của FinX thành các rule, skill và hook máy kiểm được, để Claude Code của mọi kỹ sư hành xử như nhau. Java 21/25, Spring Boot 3/4, ngân hàng tuân thủ SBV.
+Plugin [Claude Code](https://claude.com/claude-code) dùng chung (`finx-core`). Chuẩn backend FinX đóng gói thành rule, skill và hook — để Claude của mọi người hành xử giống nhau. Java 21/25, Spring Boot 3/4, ngân hàng tuân thủ SBV.
 
-## Bắt đầu nhanh
+## Cài
 
 ```
-/plugin marketplace add <internal-git-url>
+/plugin marketplace add https://github.com/BaoLy-CMC/claude-conventions.git
 /plugin install finx-core@finx-conventions
 /reload-plugins
 ```
 
-Mở session mới để nạp baseline always-on, rồi chạy `/finx-core:onboarding` — tour ~2 phút về cái gì chạy tự động, cái gì opt-in, và flow hoạt động ra sao. Vài phiên đầu sau khi cài cũng sẽ tự nhắc.
+Mở session mới, chạy **`/finx-core:onboarding`** — tour 2 phút, dựng hub và các tuỳ chọn cho bạn.
 
-## Nhìn tổng thể
+Hai lệnh cần nhớ:
 
-| Tầng | Làm gì | Ở đâu |
-|------|--------|-------|
-| Baseline | Rule always-on nạp mỗi phiên | Hook `SessionStart` (sinh từ canonical) |
-| Guard | Chặn edit sai trước khi ghi | Các hook `PreToolUse` |
-| Skills | Playbook theo nhu cầu (review, flow, tạo/soạn) | `skills/` |
-| Flow | `explore -> plan -> execute -> review -> reset` | Skill `flow` + state `.finx/` |
-| Theo kỹ sư | Trình bày opt-in: 3 output style + statusline theo flow | `output-styles/`, `statusline-setup` |
-| Onboarding | Tour lần đầu, rồi cấu hình các tuỳ chọn được chọn | Skill `onboarding` + thông báo `SessionStart` |
+| | |
+|---|---|
+| `/flow explore <task>` | mở việc lớn |
+| `/finx-core:pre-ship` | trước khi tạo PR |
 
-## Kiến trúc (một hình)
+## Chạy thế nào
+
+```mermaid
+flowchart TD
+    C["Confluence EN<br/><i>nguồn chuẩn</i>"] --> J["canonical/conventions.json"]
+    J -->|generate.py| B["hooks/baseline-rules.md<br/><i>Claude</i>"]
+    J -->|generate.py| K["canonical/out/kiro/*.md<br/><i>Kiro</i>"]
+    B --> P
+    subgraph P["plugin finx-core"]
+        direction LR
+        H1["<b>SessionStart</b><br/>nạp baseline"]
+        H2["<b>PreToolUse</b><br/>guard + flow-gate"]
+        H3["<b>UserPromptSubmit</b><br/>context-watch"]
+        SK["<b>19 skills</b><br/>gọi khi cần"]
+    end
+```
+
+- **Baseline** — luôn bật, không phải gọi gì.
+- **Guard** — chặn `var`, `double` cho tiền, `System.out`, secret hardcode. Thoát: `FINX_SKIP_HOOKS=1`.
+- **Skills** — tự nạp khi khớp ngữ cảnh, hoặc gọi tên: review, authoring, ops. Xem [Reference](docs/vi/reference.md).
+- **Tuỳ chọn cá nhân** — 3 output style + statusline bám flow. Không ép.
+
+## Flow
+
+```mermaid
+flowchart LR
+    E[explore] --> P[plan] --> X[execute] --> R[review] --> Z[reset]
+    Z -.-> E
+```
+
+Code Java production loại lớn bị chặn tới khi plan được duyệt. State khoá **theo session**, nên chạy nhiều session cùng lúc vẫn không đụng nhau:
 
 ```
-Confluence space EN            <- nguồn chuẩn (người đọc)
-        |
-        v
-canonical/conventions.json --generate.py--> Kiro steering (canonical/out/kiro/*.md)
-        |                                    Claude baseline (hooks/baseline-rules.md)
-        v
-+------------------- plugin finx-core -------------------+
-|  baseline : SessionStart nạp rule mỗi phiên            |
-|  hooks    : PreToolUse guard + flow-gate;              |
-|             UserPromptSubmit context-watch; PreCompact |
-|  skills   : review / flow / tạo-soạn (theo nhu cầu)    |
-|  flow     : explore->plan->execute->review->reset      |
-+--------------------------------------------------------+
+<hub>/plans/<group>/<repo>/NNN-slug/plan.md   plan mọi repo, gom một chỗ
+<hub>/sessions/<session_id>.json              mỗi session một file
 ```
+
+Hub đổi được (key `hub` trong `flow-config.json`, mặc định `~/.finx/hub`). Chi tiết: [Flow](docs/vi/flow.md).
 
 ## Tài liệu
 
-- [Tổng quan](docs/vi/overview.md) - mô hình tư duy và cách các mảnh ghép lại.
-- [Rules](docs/vi/rules.md) - bộ rule baseline always-on.
-- [Reference](docs/vi/reference.md) - từng skill và hook.
-- [Flow](docs/vi/flow.md) - quy trình phát triển, gate, context-watch, quản lý plan.
-- [Releasing](docs/vi/releasing.md) - cách sửa convention, phát hành, và cập nhật.
+[Tổng quan](docs/vi/overview.md) · [Rules](docs/vi/rules.md) · [Reference](docs/vi/reference.md) · [Flow](docs/vi/flow.md) · [Releasing](docs/vi/releasing.md)
 
-## Nguồn chuẩn
+## Sửa một rule
 
-Văn bản chuẩn nằm ở Confluence, space `EN` (Engineering), trang hub "Backend - Conventions & Standards". Plugin mã hóa phần ép buộc được và trích dẫn trang nguồn. Muốn sửa rule: sửa `canonical/conventions.json`, chạy generator, phát hành - xem [Releasing](docs/vi/releasing.md).
+Văn bản chuẩn nằm ở Confluence space `EN`, trang hub "Backend - Conventions & Standards". Muốn sửa rule: sửa `canonical/conventions.json`, chạy generator, cắt release — xem [Releasing](docs/vi/releasing.md).
 
 ## Trạng thái
 
-`1.1.0`. 19 skill, 4 hook event, flow đầy đủ với gate tool-agnostic, quản lý plan, thông báo cập nhật version, generator canonical -> Kiro/Claude, cùng phần trình bày opt-in theo kỹ sư (3 output style + statusline theo flow). Lịch sử trong [CHANGELOG.md](CHANGELOG.md).
+`2.0.0` · 19 skills · 4 hook event · [CHANGELOG](CHANGELOG.md)
