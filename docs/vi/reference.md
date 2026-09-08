@@ -6,6 +6,12 @@ English: [../en/reference.md](../en/reference.md) | Về [README](../../README.v
 
 Skill nạp theo nhu cầu: Claude tự gọi khi ngữ cảnh khớp `description`, hoặc bạn gọi theo tên.
 
+### Bắt đầu
+
+| Skill | Mục đích | Kích hoạt |
+|-------|----------|-----------|
+| `onboarding` | Tour lần đầu: cái gì luôn bật, cái gì nạp theo nhu cầu, flow chạy ra sao, rồi cấu hình các tuỳ chọn được chọn | Ngay sau khi cài; khi có thông báo onboarding lúc mở phiên; "dùng finx-core sao", "getting started" |
+
 ### Review
 
 | Skill | Mục đích | Kích hoạt |
@@ -81,6 +87,7 @@ Bốn sự kiện lifecycle. Tất cả fail-open (không làm hỏng tool call 
 |---------|--------|--------|
 | `SessionStart` | `session-start.py` | Nạp baseline; nếu `.finx/state_summary.md` còn mới thì append kèm banner RESUME |
 | `SessionStart` | `version-notice.py` | Khi version finx-core cài đã đổi so với phiên trước, in version mới và changelog của nó |
+| `SessionStart` | `onboarding-notice.py` | Khi chưa xong (hoặc chưa từ chối) tour onboarding, nhắc kỹ sư chạy `/finx-core:onboarding` — tối đa 3 phiên, state ở `~/.finx/.finx-core-onboarding` |
 | `PreToolUse` (Write/Edit) | `precheck.py` | Chặn cứng vi phạm xác định cao: `var` trong code mới, `double`/`float` cho tiền, `System.out`/`printStackTrace`, secret hardcode |
 | `PreToolUse` (Write/Edit) | `flow-gate.py` | Chặn edit production Java non-trivial trừ khi có tín hiệu sẵn-sàng-execute (xem [Flow](flow.md)) |
 | `UserPromptSubmit` | `context-watch.py` | Ước lượng % context; quanh ~65% hỏi nên compact, save+reset, hay tiếp tục |

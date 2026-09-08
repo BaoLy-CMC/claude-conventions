@@ -67,7 +67,7 @@ After either path, start a new session (or `/clear`) so the `SessionStart` hook 
 /plugin install finx-core@finx-conventions
 ```
 
-Optionally run `/flow-setup`; without it the standard defaults apply.
+Then start a new session and run `/finx-core:onboarding` — the guided tour of what the plugin does and which options are opt-in. It also offers `flow-setup` and `statusline-setup` at the end; without either, the standard defaults apply.
 
 ## What an update cannot do automatically
 

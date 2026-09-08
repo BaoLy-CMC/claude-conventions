@@ -67,7 +67,7 @@ Sau cả hai cách, mở session mới (hoặc `/clear`) để hook `SessionStar
 /plugin install finx-core@finx-conventions
 ```
 
-Có thể chạy `/flow-setup`; không thì dùng mặc định chuẩn.
+Rồi mở phiên mới và chạy `/finx-core:onboarding` — tour có hướng dẫn về plugin làm gì và tuỳ chọn nào là opt-in. Cuối tour skill này cũng mời chạy `flow-setup` và `statusline-setup`; không chạy thì dùng mặc định chuẩn.
 
 ## Update không tự làm được gì
 
