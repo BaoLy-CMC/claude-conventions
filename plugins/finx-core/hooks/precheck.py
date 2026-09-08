@@ -32,6 +32,13 @@ JAVA_RULES = [
      re.compile(r"(?m)^\s*var\s+\w+\s*=")),
     ("double/float for a monetary variable — use BigDecimal",
      re.compile(r"\b(double|float)\s+\w*(?i:amount|balance|money|price|fee|total|currency)\w*")),
+    ("@Autowired on a field — constructor injection only",
+     re.compile(r"@Autowired\s+(?:public|protected|private)?\s*(?:final\s+)?"
+                r"[\w.$<>,\[\]\s]+\s+\w+\s*(?:=[^;()]*)?;")),
+    ("empty catch block — handle, translate, or log it",
+     re.compile(r"catch\s*\([^)]*\)\s*\{\s*\}")),
+    ("string concatenation in a log message — use SLF4J placeholders",
+     re.compile(r"log(?:ger)?\.(?:trace|debug|info|warn|error)\(\s*\"[^\"]*\"\s*\+")),
 ]
 
 # Hardcoded secret literal (not an ${ENV} placeholder / empty). Java + config.

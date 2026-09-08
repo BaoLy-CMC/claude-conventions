@@ -22,6 +22,7 @@ Start a new session so the always-on baseline loads. Optionally run `/flow-setup
 | Guards | Block bad edits before they land | `PreToolUse` hooks |
 | Skills | On-demand playbooks (reviews, flow, authoring) | `skills/` |
 | Flow | `explore -> plan -> execute -> review -> reset` | `flow` skill + `.finx/` state |
+| Per-engineer | Opt-in presentation: 3 output styles + a flow-aware statusline | `output-styles/`, `statusline-setup` |
 
 ## Architecture (one picture)
 
@@ -55,4 +56,4 @@ The authoritative prose lives in Confluence, space `EN` (Engineering), hub "Back
 
 ## Status
 
-`0.22.0`. 12 skills, 4 hook events, the full flow with a tool-agnostic gate, plan management, version-update notice, and the canonical -> Kiro/Claude generator. History in [CHANGELOG.md](CHANGELOG.md).
+`0.22.0`. 18 skills, 4 hook events, the full flow with a tool-agnostic gate, plan management, version-update notice, the canonical -> Kiro/Claude generator, plus per-engineer opt-in presentation (3 output styles + a flow-aware statusline). History in [CHANGELOG.md](CHANGELOG.md).

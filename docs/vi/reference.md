@@ -12,6 +12,8 @@ Skill nạp theo nhu cầu: Claude tự gọi khi ngữ cảnh khớp `descripti
 |-------|----------|-----------|
 | `logging-review` | Kiểm logging theo checklist 14 điểm (PII/mask, SLF4J tham số hóa, mặc định DEBUG, không log-and-throw, không empty catch) | Review/viết log; "review logging" |
 | `error-handling-review` | Kiểm error code (`DOMAIN.CODE`), HTTP mapping (nghiệp vụ -> 4xx), log-once, envelope đúng cụm | Review exception, error handler, envelope |
+| `api-response-standards` | Hợp đồng theo ARB: envelope status/payload/meta, map 422/409/428, empty vs 404, replay idempotent, xử lý downstream timeout, tracing W3C | Viết/review controller hay endpoint tiền; chọn status code |
+| `integration-test` | Chuẩn integration test của tổ chức: source set opt-in tự skip khi chưa cấu hình, container thay vì hạ tầng dùng chung, assertion value/shape/behaviour, cleanup marker+watermark, gate coverage riêng | Thêm/review integration test; test flaky hoặc bị drop vì trùng |
 | `pre-ship` | Một cổng verify: compile, Checkstyle, test + coverage, các review skill, SonarQube quality gate, diff-sanity -> một PASS/FAIL | Trước PR/ship; phase review của flow |
 
 ### Flow
@@ -32,6 +34,36 @@ Skill nạp theo nhu cầu: Claude tự gọi khi ngữ cảnh khớp `descripti
 | `new-service-scaffold` | Dựng service/module mới (hỏi kiến trúc trước) | "new service", "scaffold" |
 | `write-docs` | Viết docs theo format và nơi lưu chọn; hỏi tiếng Anh hay tiếng Việt; không icon | "write docs", "document this" |
 | `runtime-stack` | Detect version Java + Spring Boot và áp rule theo version | Viết/upgrade code; nhắc tới Java 21/25 hoặc Spring Boot 3/4 |
+| `ops-runtime` | `values.yaml` của workload (probe, heap flag, HPA, drain), cấu hình actuator/metrics, và tạo index trên bảng production | Sửa workload; OOMKill/rollout downtime; `CREATE INDEX` trên prod |
+| `release-workload` | Ba giai đoạn release trong `platform-release-processes`, idempotency `.done`, tag bất biến và roll-forward | Release lên production; giai đoạn không chạy gì sau khi merge |
+
+### Trình bày (theo từng kỹ sư)
+
+| Skill | Mục đích | Kích hoạt |
+|-------|----------|-----------|
+| `statusline-setup` | Nối statusline powerline theo flow vào `~/.claude/settings.json` của chính kỹ sư (hỏi trước; không đè statusline sẵn có) | "finx statusline", "setup statusline", "hiện flow phase trên bar" |
+
+## Output styles
+
+Opt-in theo từng kỹ sư. Mỗi style là một lựa chọn trong `/config` -> **Output style**; chọn một cái sẽ đổi *cách* Claude trình bày (không đổi kiến thức). Không cái nào bị ép (`force-for-plugin` không đặt), nên ai không chọn thì không bị ảnh hưởng. Tất cả giữ hành vi code của Claude (`keep-coding-instructions: true`), chỉ đổi độ sâu giải thích. Có hiệu lực sau `/clear` hoặc phiên mới.
+
+| Style (trong `/config`) | Dành cho | Hành vi |
+|------|----------|---------|
+| `FinX Quick` | Việc gấp | Chỉ kết quả + diff; không option/phân tích trừ khi được hỏi. |
+| `FinX Standard` | Đã rõ nguyên lý, làm nhanh | Implement thẳng, chỉ thêm option/trade-off 1-2 dòng ở chỗ có quyết định thật. |
+| `FinX Deep` | Vừa học vừa làm | Giải thích lý do, liệt kê options + trade-off cụ thể, cite convention/Confluence FinX. |
+
+Baseline always-on vẫn áp ở dưới; style chỉ chỉnh độ sâu/giọng cho kỹ sư đã opt-in.
+
+## Statusline
+
+Opt-in theo từng kỹ sư, bật qua skill `statusline-setup`. Plugin không thể tự đặt statusline chính (chỉ setting user/project mới đặt được), nên skill này nối `scripts/finx-statusline.sh` vào `~/.claude/settings.json` của chính kỹ sư và không đè statusline sẵn có (vd claude-hud) nếu chưa hỏi.
+
+- Hiện (powerline, tô màu theo phase explore/plan/execute/review và mức dùng xanh < 60 < vàng < 80 < đỏ):
+  - `full` = 2 dòng — dòng 1 (công việc) `repo · phase · active-plan · enforcement · context%`; dòng 2 (phiên) `model · session% · đếm ngược reset`. `session%` + reset lấy từ cửa sổ usage 5 tiếng (`rate_limits.five_hour`, chỉ Pro/Max; ẩn khi không có — lúc đó dòng 2 chỉ còn model).
+  - `compact` = 1 dòng `repo · phase · context%`.
+- Cần Nerd Font cho glyph; `--plain` fallback về ASCII.
+- Repo không có `.finx/flow.json` thì phần flow tự ẩn (chỉ còn repo + context). Fail-safe: lỗi thì in dòng tối giản thay vì làm hỏng bar.
 
 ## Hooks
 

@@ -39,6 +39,9 @@ rg -n 'catch\s*\([^)]*\)\s*\{\s*\}' <files>                          # empty cat
 | 12 | No full object graph (`log.debug("{}", user)`) — log identifiers only |
 | 13 | Guard null before `log.x(..., obj.getX())` (avoid NPE side effects) |
 | 14 | requestId/traceId propagated on inter-service calls (MDC) |
+| 15 | Level mirrors the response: business error answered with 4xx → `WARN` (never `ERROR`); system failure answered with 5xx → `ERROR` + exception as last arg |
+| 16 | `INFO` only for: service lifecycle, business milestone, cronjob summary, kafka consumer, important state change — everything else `DEBUG` |
+| 17 | No duplicate log of the same event — log once, at the service boundary. `FATAL` is banned |
 
 ## Output format
 
@@ -48,4 +51,4 @@ CRITICAL  file:line  [rule 4] PII 'phone' logged raw → mask(phone)
 HIGH      file:line  [rule 8] log.error + throw same exception → remove one
 MEDIUM    file:line  [rule 3] log.info for validation step → log.debug
 ```
-Severity: PII/secret leak = CRITICAL; log-and-throw / lost stack trace / empty catch = HIGH; INFO overuse / missing context = MEDIUM. If clean, say so.
+Severity: PII/secret leak = CRITICAL; log-and-throw / lost stack trace / empty catch / `ERROR` for a business rule = HIGH; INFO overuse / duplicate log / missing context = MEDIUM. If clean, say so.

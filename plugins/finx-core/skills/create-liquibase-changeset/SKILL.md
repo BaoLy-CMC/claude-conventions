@@ -46,10 +46,29 @@ Create a new changeset in the `non-prod-liquibase` repo. The repo's own `CLAUDE.
 - `changeSet id` must equal `DD.MM.YYYY:slug` from the comment; `author` must match the comment author.
 - File name `NNN_description.xml`, `NNN` zero-padded.
 - **`<rollback>` is required** — for irreversible ops (e.g. PostgreSQL enum add) put an explicit rollback strategy comment + SQL, never leave it blank.
-- **No raw `.sql`** files under `changelogs/` (pre-commit + CI block them). Wrap SQL inside the XML `<sql>` element.
+- **No raw `.sql`** files under `changelogs/` (pre-commit + CI block them). Wrap SQL inside the XML `<sql>` element. `changelogs/legacy/*.sql` is reference only.
+- A changeset that creates a table, sequence, or inserts new data **must include the `GRANT` statements** the service DB user needs to read it.
+- One atomic change per file: do not mix independent statements, and a change to another table gets its own changeset.
+
+## Schema design rules
+
+- Explicit primary key, single `BIGSERIAL`/`SERIAL`. A UUID is an extra column with a secondary index, never the PK (full-page-write cost).
+- **No foreign keys** — they cause transitive lock contention and block online schema changes; keep consistency in application logic.
+- Lower-case `snake_case` names, collective/plural table names. Booleans as `is_xxx`. `timestamptz` for `created_at` / `last_modified_at`.
+- Every table carries `created_at`, `created_by`, `last_modified_at`, `last_modified_by` for audit.
+- JSON column type for genuinely flexible extra fields or deferred-processing payloads.
+- Never store data computed from other columns of the same table.
+
+## Backward compatibility (every change, no exceptions)
+
+- Adding a column → give it a DB-populated default.
+- Removing a column → prove no service reads it for 2–3 weeks or 2–3 rollouts first; drop only once the new version is live and stable.
+- Never change a column type incompatibly — add a new column and migrate the data.
+- Keep column types consistent with what the schema already uses (`varchar(n)`, not `character varying(n)`).
 
 ## Banking caveats
 
-- Index creation on large tables → `CREATE INDEX CONCURRENTLY` (avoid synchronous lock).
-- No foreign keys (per coding standards). Prefer `timestamptz` for datetime, `is_xxx` for booleans.
+- Index on a large table → `CREATE INDEX CONCURRENTLY`, and set `runInTransaction="false"` on the changeSet: Liquibase wraps a changeset in a transaction and CIC fails inside one. Full pre-flight in the `ops-runtime` skill.
 - Never put secrets or PII literals in reference-data SQL.
+
+> Confluence EN/514526405 (2022) says "No rollbacks in the changesets". That predates this repo: `README.md` requires an explicit `<rollback>` and the review checklist asks for a meaningful one. The repo wins.

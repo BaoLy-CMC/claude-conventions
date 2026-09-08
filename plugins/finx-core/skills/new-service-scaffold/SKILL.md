@@ -29,7 +29,7 @@ Base package: `com.finx.<serviceslug>` with sub-packages per module (`...api.con
   - non-fsap service → `com.finx.spring.service.api.ResponseApi`.
 - **Errors**: `ErrorCode` enum (`DOMAIN.CODE`); domain exceptions extend the shared base; single `GlobalExceptionHandler`.
 - **Logging**: SLF4J `private static final Logger log = LoggerFactory.getLogger(X.class);` DEBUG-by-default; MDC `X-Request-ID`/traceId filter; `mask()` for sensitive ids.
-- **Config**: everything externalised in `application.yml` via `${ENV_VAR:default}`; secrets via env/secret-manager. Actuator `health`, `prometheus`, `loggers` exposed.
+- **Config**: everything externalised in `application.yml` via `${ENV_VAR:default}`; secrets via env/secret-manager. Actuator on its own port `${MANAGEMENT_SERVER_PORT:8081}`, exposing `health`, `prometheus`, `metrics`, with `health.probes.enabled: true` so `/actuator/health/{liveness,readiness}` exist — the k8s probes must point at those, never at the aggregate `/actuator/health`. Tag every metric with the application name and enable percentile histograms for `http.server.requests`. Full snippet + workload `values.yaml`: `ops-runtime` skill.
 - **Persistence**: JPA; UUID secondary keys; `created_at/created_by/last_modified_at/last_modified_by` audit columns; no foreign keys; `timestamptz`. Schema changes go to `non-prod-liquibase` (use `create-liquibase-changeset`), never auto-DDL in prod.
 - **Java**: Java 21+, records for DTOs, constructor injection only, Lombok allowed, **no `var`**, `BigDecimal` for money.
 
