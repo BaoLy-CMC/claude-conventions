@@ -142,9 +142,9 @@ def main() -> int:
         f"(~{total:,}/{limit:,} tokens, threshold {round(threshold*100)}%).\n"
         "Per the FinX flow, ASK the user now (AskUserQuestion) whether to:\n"
         "  (a) /compact  — summarize in place, keep going (recommended, lightest);\n"
-        "  (b) save + clear + reload — write the repo's resume breadcrumb at "
-        "<hub>/state/<repo-slug>.md (+ MemPalace), then user runs /clear; the "
-        "session-start hook reloads it;\n"
+        "  (b) /flow save + clear — writes the resume breadcrumb (+ MemPalace) and "
+        "reports a handle; the user then runs /clear and, if prompted, "
+        "/flow resume <handle>;\n"
         "  (c) continue — proceed without compacting.\n"
         "Then act on their choice before continuing other work.\n"
     )

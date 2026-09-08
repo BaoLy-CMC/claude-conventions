@@ -33,18 +33,23 @@ def main() -> int:
     if not state:
         return 0  # no flow in use
 
+    if not session_id:
+        return 0  # no handle to file it under
+
     diffstat = git(root, "diff", "--stat")
     status = git(root, "status", "--short")
-    summary = finxflow.summary_path(root)
+    task = state.get("task") or ""
 
-    block = [
+    handle = finxflow.handle_for(session_id)
+    kept = finxflow.breadcrumb_body(
+        finxflow.summary_path(root, handle), drop_snapshot=True)
+
+    snapshot = "\n".join([
+        finxflow.SNAPSHOT_MARK,
+        f"## Auto-snapshot before compaction — {task or '(no task)'}",
         "",
-        "<!-- auto-snapshot at compaction -->",
-        "## Auto-snapshot (compaction)",
-        f"- session: {session_id or 'unknown'}",
         f"- phase: {state.get('phase', 'idle')}",
         f"- activePlan: {finxflow.plan_label(state, root) or state.get('activePlan')}",
-        f"- task: {state.get('task')}",
         "",
         "### git diff --stat",
         "```",
@@ -54,13 +59,12 @@ def main() -> int:
         "```",
         status or "(clean)",
         "```",
-        "> Rich summary should come from `/flow reset`. Resume with `/flow status`.",
-        "",
-    ]
+        "> Crude breadcrumb only — a hook cannot summarize a conversation.",
+        "> A richer one comes from `/flow save`.",
+    ])
+    body = (kept + "\n\n" + snapshot) if kept else snapshot
     try:
-        os.makedirs(os.path.dirname(summary), exist_ok=True)
-        with open(summary, "a", encoding="utf-8") as fh:
-            fh.write("\n".join(block))
+        finxflow.write_breadcrumb(root, session_id, task, body)
     except Exception:
         pass
     return 0

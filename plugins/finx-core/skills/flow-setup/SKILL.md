@@ -33,7 +33,7 @@ Hooks read global then project, merging over the built-in defaults. A missing fi
 **The hub** is the single directory holding every plan and every session's flow state:
 
 ```
-<hub>/plans/<group>/<repo>/NNN-slug/plan.md    <hub>/sessions/<session_id>.json    <hub>/state/<repo-slug>.md
+<hub>/plans/<group>/<repo>/NNN-slug/plan.md   <hub>/sessions/<session_id>.json   <hub>/state/<repo-slug>/<handle>.md
 ```
 
 Pick it once, early — moving it later means rewriting `activePlan` in every session file. Two rules that matter:

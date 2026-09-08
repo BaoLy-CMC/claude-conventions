@@ -126,6 +126,40 @@ def main():
     check("no session_id + non-java -> allow",
           run_gate(80, target=os.path.join(repo, "README.md")) == 0)
 
+    print("7. resume breadcrumbs — handles, no collision, snapshot never clobbers a save")
+    h1, p1 = finxflow.write_breadcrumb(repo, "sess-1", "task one", "# save one\nbody one")
+    h2, p2 = finxflow.write_breadcrumb(repo, "sess-2", "task two", "# save two\nbody two")
+    check("two sessions get different handles", h1 != h2)
+    check("two sessions get different files", p1 != p2)
+    check("handle is stable for a session", finxflow.handle_for("sess-1") == h1)
+    check("handle is retypable", all(c in finxflow.HANDLE_ALPHABET for c in h1) and len(h1) == 4)
+
+    finxflow.write_breadcrumb(repo, "sess-1", "task one", "# save one\nrewritten")
+    check("re-saving replaces, never appends",
+          open(p1).read().count("# save one") == 1)
+
+    rich = "# rich save\nNext action: finish the parser"
+    finxflow.write_breadcrumb(repo, "sess-1", "task one", rich)
+    kept = finxflow.breadcrumb_body(p1, drop_snapshot=True)
+    finxflow.write_breadcrumb(repo, "sess-1", "task one",
+                              kept + "\n\n" + finxflow.SNAPSHOT_MARK + "\n## auto\nphase: execute")
+    body = open(p1).read()
+    check("snapshot keeps the rich save above it", "finish the parser" in body)
+    check("snapshot is present below", "## auto" in body)
+    finxflow.write_breadcrumb(
+        repo, "sess-1", "task one",
+        finxflow.breadcrumb_body(p1, drop_snapshot=True) + "\n\n"
+        + finxflow.SNAPSHOT_MARK + "\n## auto 2\n")
+    body = open(p1).read()
+    check("a second snapshot replaces the first, not the save",
+          "finish the parser" in body and "## auto 2" in body and "## auto\n" not in body)
+
+    cands = finxflow.list_breadcrumbs(repo)
+    check("both candidates listed", {c["handle"] for c in cands} == {h1, h2})
+    check("task parsed from header",
+          {c["task"] for c in cands} == {"task one", "task two"})
+    check("no candidates leak from another repo", finxflow.list_breadcrumbs(child) == [])
+
     print(f"\n{'ALL PASS' if not fails else str(len(fails)) + ' FAILED: ' + ', '.join(fails)}")
     return 1 if fails else 0
 

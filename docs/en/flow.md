@@ -14,7 +14,9 @@ Driven by one command, `/flow <phase>` - a single command so it does not collide
 | plan | `/flow plan` | Create/activate a plan under `<hub>/plans/<group>/<repo>/`, write architecture + step blueprint, get it approved. |
 | execute | `/flow execute` | Requires a ready-to-execute signal (below). Implement per plan, 1-2 files per batch. |
 | review | `/flow review` | Run the `pre-ship` gate. Fix CRITICAL/HIGH. |
-| reset | `/flow reset` | Save the resume breadcrumb + MemPalace, archive the done plan, return to idle. |
+| save | `/flow save` | Pause before `/clear`. Write the breadcrumb + MemPalace, **keep** phase and plan, report a handle. |
+| resume | `/flow resume <handle>` | Load that breadcrumb and continue from the recorded phase. |
+| reset | `/flow reset` | Finish. Breadcrumb + MemPalace, archive the done plan, return to idle. |
 | status | `/flow status` | Show phase, active plan, task. |
 
 ## State (in the hub)
@@ -23,7 +25,7 @@ Everything lives in one hub directory, set by the `hub` key in `flow-config.json
 
 - `sessions/<session_id>.json` - `{ sessionId, repo, phase, activePlan, task, approved, updated }`. The flow-gate reads this.
 - `plans/<group>/<repo>/NNN-slug/plan.md` - one directory per plan, frontmatter `status: draft|approved|in-progress|done|abandoned`. `activePlan` is stored relative to `plans/`. Max 3 active per repo, with auto-archive of done plans (see the `plans` skill).
-- `state/<repo-slug>.md` - a volatile resume pointer (phase, done, remaining, next action). Durable state stays in `plan.md`, `git diff`, and the code.
+- `state/<repo-slug>/<handle>.md` - a volatile resume pointer (phase, done, remaining, next action), one per session. Durable state stays in `plan.md`, `git diff`, and the code.
 
 ### Why per session, not per repo
 
@@ -56,7 +58,11 @@ Opt-in: a session with no flow state is never gated. Escape a false positive wit
 ## Long sessions: context-watch and reset
 
 - `UserPromptSubmit` estimates context usage from the transcript. At the threshold (default 65%) it asks whether to `/compact`, save-and-clear-and-reload, or continue. It warns once per 10% bucket.
-- Save-and-reload writes `<hub>/state/<repo-slug>.md`; after `/clear`, the `SessionStart` hook reloads it under a RESUME banner so the next session continues at the same phase. The breadcrumb is keyed by repo, not session, precisely because `/clear` starts a new session id.
+- `/flow save` writes `<hub>/state/<repo-slug>/<handle>.md` and reports the handle. After `/clear`, `SessionStart` reloads it under a RESUME banner.
+
+**How the new session finds the old one.** It cannot, on its own. `/clear` mints a new session id, and Claude Code keeps the old transcript on disk, so neither an id nor a "which transcript died" test links them — every field in the transcript was checked, and `parentUuid` only threads messages inside one session. So the rule is: exactly one breadcrumb under 15 minutes old is offered automatically; anything else is listed with handle, age and task, and the engineer picks with `/flow resume <handle>`. Four characters carried across beats a guess that loads someone else's context.
+
+Repeated saves rewrite the same file. An unattended `PreCompact` snapshot replaces only the part below the `<!-- finx-auto-snapshot -->` divider, so it never destroys a `/flow save`. Breadcrumbs age out after 7 days.
 - `PreCompact` writes a safety-net snapshot before an unattended auto-compaction.
 
 Prefer `/compact` at the threshold when possible (native, keeps the phase automatically); use clear-and-reload when the context is polluted.

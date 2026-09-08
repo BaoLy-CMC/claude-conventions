@@ -1,6 +1,6 @@
 ---
 name: flow
-description: Drive and track the enforced FinX dev flow — explore → plan → execute → review → reset — with per-session state in the hub. Use when the user says "/flow", "start flow", "flow status", "next phase", "explore [task]", "move to execute", "review", "reset flow", or when beginning non-trivial work that should follow the disciplined flow. Named `flow` (single command with a phase arg) to avoid colliding with any personal explore/plan/execute/reset skills.
+description: Drive and track the enforced FinX dev flow — explore → plan → execute → review → reset — with per-session state in the hub. Use when the user says "/flow", "start flow", "flow status", "next phase", "explore [task]", "move to execute", "review", "save before clearing", "resume my previous session", "reset flow", or when beginning non-trivial work that should follow the disciplined flow. Named `flow` (single command with a phase arg) to avoid colliding with any personal explore/plan/execute/reset skills.
 ---
 
 # FinX Dev Flow
@@ -40,7 +40,9 @@ Create the file on first use. Every phase transition rewrites `phase` + `updated
 | `/flow plan` | `plan` | Via the `plans` skill: create/activate a plan (`<hub>/plans/<group>/<repo>/NNN-slug/plan.md`), write architecture + step blueprint with a verify per step. Ask the user to approve (native plan mode). On approval set the plan `status: approved`. |
 | `/flow execute` | `execute` | **Precondition: `activePlan` exists and its `status` is `approved` or `in-progress`** — otherwise stop and tell the user to `/flow plan` first. Set plan `status: in-progress`. Implement per the plan, 1–2 files per batch, running the verify for each step. |
 | `/flow review` | `review` | Run the `pre-ship` gate (build + Checkstyle + tests/coverage + review skills + Sonar) on the working diff. Fix CRITICAL/HIGH before proceeding. |
-| `/flow reset` | `idle` | Save the resume breadcrumb (see below) + MemPalace checkpoint; mark the active plan `done` and archive it (via `plans`); clear `phase`→`idle`, `activePlan`→null. |
+| `/flow save` | unchanged | Pause mid-work before `/clear`. Write the resume breadcrumb (see below) + MemPalace checkpoint. **Keeps** `phase` and `activePlan` — this is a break, not an ending. Report the handle back: `saved: k3f9 — resume with /flow resume k3f9 after /clear`. |
+| `/flow resume <handle>` | unchanged | Load `<hub>/state/<repo-slug>/<handle>.md` into context and continue from the recorded phase. Without a handle, list the candidates and ask. |
+| `/flow reset` | `idle` | Finish. Write the breadcrumb + MemPalace checkpoint; mark the active plan `done` and archive it (via `plans`); clear `phase`→`idle`, `activePlan`→null. |
 
 ## Transitions & discipline
 
@@ -48,9 +50,13 @@ Create the file on first use. Every phase transition rewrites `phase` + `updated
 - Keep **one active plan per session**. Other sessions having their own open plans is expected — never close or repoint another session's state.
 - On any concern mid-flow (scope creep, unclear requirement, risky change) → stop and ask with a recommendation (baseline principle).
 
-## Resume breadcrumb — `<hub>/state/<repo-slug>.md` (written on reset / context save)
+## Resume breadcrumb — `<hub>/state/<repo-slug>/<handle>.md`
 
-Keyed by **repo**, not session: `/clear` starts a new session id, so a session-keyed breadcrumb could never be picked up again. `<repo-slug>` is the absolute repo path with `/` replaced by `-`.
+Keyed by repo **and** a short handle derived from the session id, so parallel sessions in one repo never overwrite each other.
+
+**Why a handle and not automatic detection.** `/clear` mints a new session id, and Claude Code keeps the old transcript on disk — nothing links a new session to the one it replaced, and "which transcript died" cannot answer it either. Rather than guess wrong, the engineer carries four characters across. `SessionStart` offers a lone breadcrumb under 15 minutes old without one; with several candidates it lists them and waits.
+
+Repeated saves from one session rewrite the same file — never append. An unattended `PreCompact` snapshot replaces only the part below the `<!-- finx-auto-snapshot -->` divider, so it cannot destroy a `/flow save`. Breadcrumbs older than 7 days age out.
 
 Volatile pointer only — durable state stays in `plan.md` + `git diff` + code:
 

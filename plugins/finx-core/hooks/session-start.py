@@ -16,14 +16,48 @@ never lost.
 """
 import os
 import sys
-import time
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import finxflow  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 BASELINE = os.path.join(HERE, "baseline-rules.md")
-SUMMARY_MAX_AGE_DAYS = 7
+
+
+def emit_resume(root: str) -> None:
+    """Offer the previous session's breadcrumb — auto only when unambiguous.
+
+    Nothing on disk links a new session to the one it replaced: `/clear` mints a
+    new id, and Claude Code keeps the old transcript, so "which transcript died"
+    cannot answer it either. So: one fresh candidate is offered outright; several
+    are listed for the engineer to pick by handle. Never guess.
+    """
+    cands = finxflow.list_breadcrumbs(root)
+    if not cands:
+        return
+
+    fresh = [c for c in cands if c["age_min"] <= finxflow.BREADCRUMB_AUTO_MINUTES]
+    if len(fresh) == 1:
+        c = fresh[0]
+        sys.stdout.write(
+            f"\n\n---\n\n## Resuming previous session (`{c['handle']}`, "
+            f"{c['age_min']}m ago)\n"
+            "Read the summary below, run `/flow status`, continue from the "
+            "recorded phase.\n\n"
+        )
+        sys.stdout.write(open(c["path"], encoding="utf-8").read())
+        return
+
+    sys.stdout.write(
+        f"\n\n---\n\n## {len(cands)} saved session(s) in this repo\n"
+        "More than one candidate, or none recent enough to pick safely — do NOT "
+        "guess which belongs to this session. Show the engineer this list and let "
+        "them choose:\n\n"
+    )
+    for c in cands[:5]:
+        age = f"{c['age_min']}m" if c["age_min"] < 90 else f"{c['age_min'] // 60}h"
+        sys.stdout.write(f"- `{c['handle']}` — {age} ago — {c['task'] or '(no task)'}\n")
+    sys.stdout.write("\nLoad one with `/flow resume <handle>`.\n")
 
 
 def main() -> int:
@@ -44,17 +78,7 @@ def main() -> int:
         )
 
     try:
-        root = finxflow.repo_root(cwd)
-        summary = finxflow.summary_path(root)
-        if os.path.exists(summary):
-            age_days = (time.time() - os.path.getmtime(summary)) / 86400
-            if age_days <= SUMMARY_MAX_AGE_DAYS:
-                sys.stdout.write(
-                    "\n\n---\n\n## Resuming previous session in this repo\n"
-                    "There is an in-flight FinX flow here. Read the summary below, "
-                    "run `/flow status`, and continue from the recorded phase.\n\n"
-                )
-                sys.stdout.write(open(summary, encoding="utf-8").read())
+        emit_resume(finxflow.repo_root(cwd))
     except Exception:
         pass
 

@@ -85,13 +85,13 @@ Four lifecycle events. All fail-open (never break a tool call on error). Escape 
 
 | Event | Script | What it does |
 |-------|--------|--------------|
-| `SessionStart` | `session-start.py` | Inject the baseline + `FINX_SESSION_ID`; if the repo's `<hub>/state/` breadcrumb is fresh, append it under a RESUME banner; GC dead session files |
+| `SessionStart` | `session-start.py` | Inject the baseline + `FINX_SESSION_ID`; offer the previous session's `<hub>/state/` breadcrumb (auto only when exactly one is under 15 min old, else list handles); GC aged-out state |
 | `SessionStart` | `version-notice.py` | When the installed finx-core version changed since last session, print the new version and its changelog notes |
 | `SessionStart` | `onboarding-notice.py` | Until the onboarding tour is done (or declined), point the engineer at `/finx-core:onboarding` — at most 3 sessions, state in `~/.finx/.finx-core-onboarding` |
 | `PreToolUse` (Write/Edit) | `precheck.py` | Hard-block high-confidence violations: `var` in new code, `double`/`float` for money, `System.out`/`printStackTrace`, hardcoded secrets |
 | `PreToolUse` (Write/Edit) | `flow-gate.py` | Block non-trivial production-Java edits unless a ready-to-execute signal is present (see [Flow](flow.md)) |
-| `UserPromptSubmit` | `context-watch.py` | Estimate context usage; at ~65% ask whether to compact, save+reset, or continue |
-| `PreCompact` | `flow-reset.py` | Snapshot flow phase + active plan + `git diff --stat` into the repo's `<hub>/state/` breadcrumb before compaction |
+| `UserPromptSubmit` | `context-watch.py` | Estimate context usage; at ~65% ask whether to compact, `/flow save` + clear, or continue |
+| `PreCompact` | `flow-reset.py` | Snapshot flow phase + active plan + `git diff --stat` below the divider in this session's breadcrumb, leaving any `/flow save` above it intact |
 
 ### Force-guard vs flow-gate
 

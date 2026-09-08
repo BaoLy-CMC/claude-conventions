@@ -14,7 +14,9 @@ Vòng lặp phát triển được ép: `explore -> plan -> execute -> review ->
 | plan | `/flow plan` | Tạo/kích hoạt plan trong `<hub>/plans/<group>/<repo>/`, viết kiến trúc + blueprint từng bước, xin duyệt. |
 | execute | `/flow execute` | Cần tín hiệu sẵn-sàng-execute (bên dưới). Hiện thực theo plan, 1-2 file mỗi batch. |
 | review | `/flow review` | Chạy cổng `pre-ship`. Sửa CRITICAL/HIGH. |
-| reset | `/flow reset` | Lưu breadcrumb resume + MemPalace, archive plan đã xong, về idle. |
+| save | `/flow save` | Nghỉ giữa chừng trước `/clear`. Ghi breadcrumb + MemPalace, **giữ nguyên** phase và plan, trả về một handle. |
+| resume | `/flow resume <handle>` | Nạp đúng breadcrumb đó, tiếp từ phase đã ghi. |
+| reset | `/flow reset` | Xong việc. Lưu breadcrumb resume + MemPalace, archive plan đã xong, về idle. |
 | status | `/flow status` | Hiện phase, active plan, task. |
 
 ## State (trong hub)
@@ -23,7 +25,7 @@ Mọi thứ nằm trong một thư mục hub, đặt bằng key `hub` trong `flo
 
 - `sessions/<session_id>.json` - `{ sessionId, repo, phase, activePlan, task, approved, updated }`. Flow-gate đọc file này.
 - `plans/<group>/<repo>/NNN-slug/plan.md` - mỗi plan một thư mục, frontmatter `status: draft|approved|in-progress|done|abandoned`. `activePlan` lưu tương đối so với `plans/`. Tối đa 3 active mỗi repo, auto-archive plan đã xong (xem skill `plans`).
-- `state/<repo-slug>.md` - con trỏ resume dễ bay hơi (phase, done, remaining, next action). State bền nằm ở `plan.md`, `git diff`, và code.
+- `state/<repo-slug>/<handle>.md` - con trỏ resume dễ bay hơi, mỗi session một file (phase, done, remaining, next action). State bền nằm ở `plan.md`, `git diff`, và code.
 
 ### Vì sao theo session, không theo repo
 
@@ -56,7 +58,11 @@ Opt-in: session không có flow state thì không bao giờ bị gate. Thoát ch
 ## Phiên dài: context-watch và reset
 
 - `UserPromptSubmit` ước lượng % context từ transcript. Ở ngưỡng (mặc định 65%) nó hỏi nên `/compact`, save-and-clear-and-reload, hay tiếp tục. Cảnh báo một lần mỗi bucket 10%.
-- Save-and-reload ghi `<hub>/state/<repo-slug>.md`; sau `/clear`, hook `SessionStart` nạp lại kèm banner RESUME để phiên mới tiếp đúng phase. Breadcrumb khoá theo repo chứ không theo session, chính vì `/clear` sinh session id mới.
+- `/flow save` ghi `<hub>/state/<repo-slug>/<handle>.md` và báo lại handle. Sau `/clear`, `SessionStart` nạp lại kèm banner RESUME.
+
+**Session mới tìm session cũ bằng cách nào.** Tự nó thì không tìm được. `/clear` sinh session id mới, và Claude Code giữ nguyên transcript cũ trên đĩa, nên không id nào nối hai bên, mà phép thử "transcript nào chết" cũng vô dụng — đã quét mọi field trong transcript, `parentUuid` chỉ nối message trong cùng một session. Nên quy tắc là: đúng một breadcrumb dưới 15 phút tuổi thì mời sẵn; ngoài ra liệt kê kèm handle, tuổi và task để kỹ sư chọn bằng `/flow resume <handle>`. Mang bốn ký tự sang còn hơn đoán rồi nạp nhầm ngữ cảnh của người khác.
+
+Ghi lại nhiều lần thì đè lên cùng file. Snapshot `PreCompact` chạy ngầm chỉ thay phần dưới dấu `<!-- finx-auto-snapshot -->`, không bao giờ phá `/flow save`. Breadcrumb quá 7 ngày thì tự hết hạn.
 - `PreCompact` ghi snapshot dự phòng trước khi auto-compact ngoài ý muốn.
 
 Ưu tiên `/compact` ở ngưỡng khi được (native, tự giữ phase); dùng clear-and-reload khi context bị nhiễu.

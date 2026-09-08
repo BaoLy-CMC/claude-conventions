@@ -14,7 +14,7 @@ The hub location comes from `hub` in `flow-config.json` (project overrides globa
 ```
 <hub>/
 ├── sessions/<session_id>.json    # flow state, one file per session
-├── state/<repo-slug>.md          # resume breadcrumb, one per repo
+├── state/<repo-slug>/<handle>.md # resume breadcrumb, one per session
 └── plans/
     ├── INDEX.md                  # auto-maintained, every plan of every repo
     ├── cross-repo/               # plans spanning several repos

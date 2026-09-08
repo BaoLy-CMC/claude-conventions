@@ -85,13 +85,13 @@ Bốn sự kiện lifecycle. Tất cả fail-open (không làm hỏng tool call 
 
 | Sự kiện | Script | Làm gì |
 |---------|--------|--------|
-| `SessionStart` | `session-start.py` | Nạp baseline + `FINX_SESSION_ID`; nếu breadcrumb `<hub>/state/` của repo còn mới thì append kèm banner RESUME; dọn rác file session chết |
+| `SessionStart` | `session-start.py` | Nạp baseline + `FINX_SESSION_ID`; mời breadcrumb `<hub>/state/` của session trước (tự nạp chỉ khi đúng một cái dưới 15 phút, còn lại liệt kê handle); dọn rác state quá hạn |
 | `SessionStart` | `version-notice.py` | Khi version finx-core cài đã đổi so với phiên trước, in version mới và changelog của nó |
 | `SessionStart` | `onboarding-notice.py` | Khi chưa xong (hoặc chưa từ chối) tour onboarding, nhắc kỹ sư chạy `/finx-core:onboarding` — tối đa 3 phiên, state ở `~/.finx/.finx-core-onboarding` |
 | `PreToolUse` (Write/Edit) | `precheck.py` | Chặn cứng vi phạm xác định cao: `var` trong code mới, `double`/`float` cho tiền, `System.out`/`printStackTrace`, secret hardcode |
 | `PreToolUse` (Write/Edit) | `flow-gate.py` | Chặn edit production Java non-trivial trừ khi có tín hiệu sẵn-sàng-execute (xem [Flow](flow.md)) |
-| `UserPromptSubmit` | `context-watch.py` | Ước lượng % context; quanh ~65% hỏi nên compact, save+reset, hay tiếp tục |
-| `PreCompact` | `flow-reset.py` | Chụp nhanh phase + active plan + `git diff --stat` vào breadcrumb `<hub>/state/` của repo trước compact |
+| `UserPromptSubmit` | `context-watch.py` | Ước lượng % context; quanh ~65% hỏi nên compact, `/flow save` + clear, hay tiếp tục |
+| `PreCompact` | `flow-reset.py` | Chụp nhanh phase + active plan + `git diff --stat` xuống phần dưới dấu phân cách trong breadcrumb của session này, giữ nguyên phần `/flow save` ở trên |
 
 ### Force-guard và flow-gate
 
