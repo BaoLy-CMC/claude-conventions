@@ -26,8 +26,8 @@ Skill nạp theo nhu cầu: Claude tự gọi khi ngữ cảnh khớp `descripti
 
 | Skill | Mục đích | Kích hoạt |
 |-------|----------|-----------|
-| `flow` | Điều `explore -> plan -> execute -> review -> reset` với state ở `.finx/flow.json` | `/flow <phase>`; bắt đầu việc non-trivial |
-| `plans` | Quản lý plan trong `.finx/plans/` (lifecycle, một active plan, guard) | "list plans", "new plan", "too many plans" |
+| `flow` | Điều `explore -> plan -> execute -> review -> reset` với state theo session ở `<hub>/sessions/` | `/flow <phase>`; bắt đầu việc non-trivial |
+| `plans` | Quản lý plan trong `<hub>/plans/` (lifecycle, một active plan, guard) | "list plans", "new plan", "too many plans" |
 | `plan-tidy` | Gom `plan*.md` rải rác ở root vào cấu trúc, có xác nhận | "tidy plans", file plan lỏng lẻo ở root |
 | `flow-setup` | Cấu hình flow theo kỹ sư/project (enforcement, ngưỡng) | "flow setup", "configure flow" |
 
@@ -69,7 +69,7 @@ Opt-in theo từng kỹ sư, bật qua skill `statusline-setup`. Plugin không t
   - `full` = 2 dòng — dòng 1 (công việc) `repo · phase · active-plan · enforcement · context%`; dòng 2 (phiên) `model · session% · đếm ngược reset`. `session%` + reset lấy từ cửa sổ usage 5 tiếng (`rate_limits.five_hour`, chỉ Pro/Max; ẩn khi không có — lúc đó dòng 2 chỉ còn model).
   - `compact` = 1 dòng `repo · phase · context%`.
 - Cần Nerd Font cho glyph; `--plain` fallback về ASCII.
-- Repo không có `.finx/flow.json` thì phần flow tự ẩn (chỉ còn repo + context). Fail-safe: lỗi thì in dòng tối giản thay vì làm hỏng bar.
+- Session không có flow state thì phần flow tự ẩn (chỉ còn repo + context). Fail-safe: lỗi thì in dòng tối giản thay vì làm hỏng bar.
 
 ## Script
 
@@ -85,15 +85,15 @@ Bốn sự kiện lifecycle. Tất cả fail-open (không làm hỏng tool call 
 
 | Sự kiện | Script | Làm gì |
 |---------|--------|--------|
-| `SessionStart` | `session-start.py` | Nạp baseline; nếu `.finx/state_summary.md` còn mới thì append kèm banner RESUME |
+| `SessionStart` | `session-start.py` | Nạp baseline + `FINX_SESSION_ID`; nếu breadcrumb `<hub>/state/` của repo còn mới thì append kèm banner RESUME; dọn rác file session chết |
 | `SessionStart` | `version-notice.py` | Khi version finx-core cài đã đổi so với phiên trước, in version mới và changelog của nó |
 | `SessionStart` | `onboarding-notice.py` | Khi chưa xong (hoặc chưa từ chối) tour onboarding, nhắc kỹ sư chạy `/finx-core:onboarding` — tối đa 3 phiên, state ở `~/.finx/.finx-core-onboarding` |
 | `PreToolUse` (Write/Edit) | `precheck.py` | Chặn cứng vi phạm xác định cao: `var` trong code mới, `double`/`float` cho tiền, `System.out`/`printStackTrace`, secret hardcode |
 | `PreToolUse` (Write/Edit) | `flow-gate.py` | Chặn edit production Java non-trivial trừ khi có tín hiệu sẵn-sàng-execute (xem [Flow](flow.md)) |
 | `UserPromptSubmit` | `context-watch.py` | Ước lượng % context; quanh ~65% hỏi nên compact, save+reset, hay tiếp tục |
-| `PreCompact` | `flow-reset.py` | Chụp nhanh phase + active plan + `git diff --stat` vào `.finx/state_summary.md` trước compact |
+| `PreCompact` | `flow-reset.py` | Chụp nhanh phase + active plan + `git diff --stat` vào breadcrumb `<hub>/state/` của repo trước compact |
 
 ### Force-guard và flow-gate
 
 - **Force-guard** (`precheck.py`) về nội dung code, luôn áp cho mọi lần ghi production Java.
-- **Flow-gate** (`flow-gate.py`) về trạng thái quy trình, chỉ áp khi repo chạy flow (`.finx/flow.json` có mặt) với `enforcement` khác `off`/`guided`.
+- **Flow-gate** (`flow-gate.py`) về trạng thái quy trình, chỉ áp khi session chạy flow (có session state) với `enforcement` khác `off`/`guided`.

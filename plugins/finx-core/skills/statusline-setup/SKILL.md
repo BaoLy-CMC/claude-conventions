@@ -46,6 +46,6 @@ Opt-in, per-engineer. Wires the shipped `scripts/finx-statusline.sh` into **the 
 
 ## Notes
 
-- Behaviour lives in the script; this skill only wires it up. In a repo without `.finx/flow.json` the flow segments hide automatically (shows repo + context only).
+- Behaviour lives in the script; this skill only wires it up. With no flow state for the current session the flow segments hide automatically (shows repo + context only).
 - To turn it off: remove the `statusLine` key (or restore the previous value) from `~/.claude/settings.json`.
 - Missing `jq` → the script prints a minimal plain line rather than erroring; installing `jq` is recommended for the full bar.

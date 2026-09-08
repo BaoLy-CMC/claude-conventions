@@ -28,12 +28,12 @@ State: `~/.finx/.finx-core-onboarding` holds `done` from the moment the tour sta
    | Always on | A `SessionStart` hook injects the FinX baseline (Java/Spring conventions, banking domain rules, logging and error-handling defaults) into every session. Nothing to invoke — it is already in this conversation. |
    | Guards | `PreToolUse` hooks block a small set of high-confidence violations before a write lands: `var` in new code, `double`/`float` for money, `System.out`/`printStackTrace`, hardcoded secrets. Escape hatch for a false positive: `FINX_SKIP_HOOKS=1`. |
    | On demand | 19 skills load only when the context matches, or when called by name — reviews (`logging-review`, `error-handling-review`, `api-response-standards`, `pre-ship`), authoring (`create-liquibase-changeset`, `new-service-scaffold`, `cross-repo-operations`), ops (`ops-runtime`, `release-workload`). Full list: `docs/en/reference.md` in the conventions repo. |
-   | The flow | `explore -> plan -> execute -> review -> reset`, state in `.finx/flow.json`. On a repo with enforcement on, non-trivial production-Java edits are gated until a plan is approved. Start with `/flow explore <task>`. Details: `docs/en/flow.md`. |
+   | The flow | `explore -> plan -> execute -> review -> reset`. State is **per session**, in `<hub>/sessions/<id>.json` — run ten sessions at once and each keeps its own phase and plan. Plans for every repo live together in `<hub>/plans/`. On a repo with enforcement on, non-trivial production-Java edits are gated until a plan is approved. Start with `/flow explore <task>`. Details: `docs/en/flow.md`. |
 
 3. **Show it once, concretely.** Run `/flow status` in the current repo and read the result back: either the active phase, or "no flow yet — `/flow explore <task>` starts one". A single real command beats another paragraph.
 
 4. **Offer the opt-ins (AskUserQuestion, multi-select, all genuinely optional).** Nothing here is forced; an engineer who picks none keeps stock behaviour.
-   - **Flow enforcement** — run `flow-setup` to choose `hard` / `hybrid` / `guided` / `off` and the context-watch threshold. Recommended for a service repo; skip for a scratch repo.
+   - **Flow setup** — run `flow-setup` to choose the **hub** (where plans and session state live — ask this even if they skip everything else, since moving it later is expensive), the enforcement level `hard` / `hybrid` / `guided` / `off`, and the context-watch threshold. Recommended for a service repo; skip for a scratch repo.
    - **Output style** — `FinX Quick` / `FinX Standard` / `FinX Deep` in `/config` -> Output style. Changes explanation depth only.
    - **Statusline** — run `statusline-setup` for a powerline bar showing repo, phase, active plan, enforcement, context%. Never overwrites an existing statusline without asking.
 

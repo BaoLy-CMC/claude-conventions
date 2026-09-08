@@ -1,6 +1,6 @@
 ---
 name: flow-setup
-description: Configure the FinX dev flow per engineer (or per project) — enforcement level, context-watch threshold, trivial-change threshold, plan guards. Use when the user says "flow setup", "configure flow", "set enforcement", "change context threshold", "customize flow", or on first adoption of the flow in a repo. Writes flow-config.json; the flow-gate and context-watch hooks read it, falling back to standard defaults.
+description: Configure the FinX dev flow per engineer (or per project) — hub location, enforcement level, context-watch threshold, trivial-change threshold, plan guards. Use when the user says "flow setup", "configure flow", "set enforcement", "where are my plans stored", "change the hub", "change context threshold", "customize flow", or on first adoption of the flow in a repo. Writes flow-config.json; the flow-gate and context-watch hooks read it, falling back to standard defaults.
 ---
 
 # Flow Setup
@@ -18,6 +18,7 @@ Hooks read global then project, merging over the built-in defaults. A missing fi
 
 ```json
 {
+  "hub": "~/.finx/hub",          // where plans + session state live (see below)
   "enforcement": "hybrid",       // hybrid | hard | guided | off
   "contextThreshold": 0.65,       // 0..1 — context-watch prompt point
   "contextLimit": "auto",         // "auto" (detect from model) or integer tokens
@@ -29,6 +30,17 @@ Hooks read global then project, merging over the built-in defaults. A missing fi
 }
 ```
 
+**The hub** is the single directory holding every plan and every session's flow state:
+
+```
+<hub>/plans/<group>/<repo>/NNN-slug/plan.md    <hub>/sessions/<session_id>.json    <hub>/state/<repo-slug>.md
+```
+
+Pick it once, early — moving it later means rewriting `activePlan` in every session file. Two rules that matter:
+
+- **Do not name it `.finx` inside a tree of repos.** Anything named `.finx` above a repo used to be inherited by every repo below it; that inheritance is gone, but a hub sitting above the repos is still confusing to read. `~/.finx/hub` or `<workspace>/.plans` are safer than `<workspace>/.finx`.
+- If the hub lives inside a git repo, make sure it is ignored.
+
 **Enforcement levels:**
 - `hybrid` (recommended) — block non-trivial prod-code edits outside `execute`; trivial edits pass.
 - `hard` — block **all** prod-code edits outside `execute` (no trivial exemption).
@@ -38,6 +50,7 @@ Hooks read global then project, merging over the built-in defaults. A missing fi
 ## Steps
 
 1. Ask the engineer (use AskUserQuestion) for the choices that matter, each with the recommended default pre-selected:
+   - **Hub**: where plans and session state live. Offer `~/.finx/hub` (recommended — outside every source tree), a workspace-level directory if they keep one, and let them type their own. If a hub is already configured, show it and ask whether to keep it. Ask this **first** — the rest is cheap to change later, this is not.
    - **Scope**: global (`~/.finx`) or this project (`.finx`)?
    - **Enforcement**: hybrid / hard / guided / off.
    - **Context threshold**: 65% (default) / 60 / 70 / off.

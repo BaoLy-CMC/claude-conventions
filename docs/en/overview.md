@@ -60,7 +60,7 @@ Claude Code plugins do not auto-load a `CLAUDE.md`. So the always-on baseline is
 
 ## Opt-in and integration
 
-The flow is opt-in per repo: a repo with no `.finx/flow.json` is never gated, so personal tools and other plugins coexist. Non-flow features (baseline, guards, reviews, docs, runtime rules) apply regardless of how you plan or execute. See [Flow](flow.md), section "Integration with other planning/execute tools".
+The flow is opt-in per session: a session with no flow state is never gated, so personal tools and other plugins coexist. Non-flow features (baseline, guards, reviews, docs, runtime rules) apply regardless of how you plan or execute. See [Flow](flow.md), section "Integration with other planning/execute tools".
 
 ## Where to go next
 

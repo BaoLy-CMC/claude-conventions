@@ -79,4 +79,4 @@ Product: FinX / Vikki banking platform (SBV-compliant). Stack: Java 21 or 25 (LT
 
 ## Discipline
 - Surgical — change only what the request needs; note adjacent issues, don't fix them. @Transactional at service layer, scope minimal. Reuse common-libs / common.fsap before writing local equivalents.
-- No code before an approved plan for anything non-trivial — run the `flow` skill (explore -> plan -> execute -> review).
+- No code before an approved plan for anything non-trivial — run the `flow` skill (explore -> plan -> execute -> review). Flow state is per **session**, at `<hub>/sessions/<session_id>.json`; plans for every repo live in `<hub>/plans/`. Parallel sessions each hold their own plan — never repoint or close another session's state.

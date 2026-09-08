@@ -64,22 +64,31 @@ if [ -n "$RESET_AT" ] && [ "$RESET_AT" -eq "$RESET_AT" ] 2>/dev/null; then
   [ "$PLAIN" -eq 1 ] && RESET_LABEL="reset $rt" || RESET_LABEL="reset in $rt"
 fi
 
-# --- flow state (walk up for .finx) --------------------------------------
-find_up() { # find_up <start> <relpath>
-  local d="$1"
-  while :; do
-    [ -e "$d/$2" ] && { printf '%s' "$d/$2"; return 0; }
-    [ "$d" = "/" ] && return 1
-    d="$(dirname "$d")"
-  done
-}
+# --- flow state (per session, from the hub) -------------------------------
+# Never walks up past the repo root: a repo must not inherit a parent's flow.
+SESSION_ID="$(jget '.session_id')"
+ROOT="$(git -C "$CWD" rev-parse --show-toplevel 2>/dev/null)"; [ -z "$ROOT" ] && ROOT="$CWD"
+
+HUB="$(fget "$ROOT/.finx/flow-config.json" '.hub')"
+[ -z "$HUB" ] && HUB="$(fget "$HOME/.finx/flow-config.json" '.hub')"
+[ -z "$HUB" ] && HUB="$HOME/.finx/hub"
+HUB="${HUB/#\~/$HOME}"
+
 PHASE=""; PLAN=""; ENF=""
-FLOW_JSON="$(find_up "$CWD" ".finx/flow.json" 2>/dev/null || true)"
-if [ -n "$FLOW_JSON" ]; then
-  ROOT="$(dirname "$(dirname "$FLOW_JSON")")"
-  PHASE="$(fget "$FLOW_JSON" '.phase')"
-  PLAN_PATH="$(fget "$FLOW_JSON" '.activePlan')"
-  [ -n "$PLAN_PATH" ] && { PLAN="$(basename "$PLAN_PATH")"; PLAN="${PLAN%.md}"; }
+STATE=""
+[ -n "$SESSION_ID" ] && [ -f "$HUB/sessions/$SESSION_ID.json" ] && STATE="$HUB/sessions/$SESSION_ID.json"
+# legacy per-repo file, read-only, repo root only — dropped after two releases
+[ -z "$STATE" ] && [ -f "$ROOT/.finx/flow.json" ] && STATE="$ROOT/.finx/flow.json"
+
+if [ -n "$STATE" ]; then
+  PHASE="$(fget "$STATE" '.phase')"
+  PLAN_PATH="$(fget "$STATE" '.activePlan')"
+  if [ -n "$PLAN_PATH" ]; then
+    PLAN="${PLAN_PATH%.md}"
+    # <slug>/plan.md — the name lives in the directory, not the file
+    [ "$(basename "$PLAN")" = "plan" ] && PLAN="$(dirname "$PLAN")"
+    PLAN="$(basename "$PLAN")"
+  fi
   # enforcement: project overrides global; default hybrid
   ENF="$(fget "$ROOT/.finx/flow-config.json" '.enforcement')"
   [ -z "$ENF" ] && ENF="$(fget "$HOME/.finx/flow-config.json" '.enforcement')"

@@ -11,17 +11,34 @@ Driven by one command, `/flow <phase>` - a single command so it does not collide
 | Phase | Command | What happens |
 |-------|---------|--------------|
 | explore | `/flow explore [task]` | Map scope (controller -> service -> repository, prior art, impacted files). No edits. |
-| plan | `/flow plan` | Create/activate a plan under `.finx/plans/`, write architecture + step blueprint, get it approved. |
+| plan | `/flow plan` | Create/activate a plan under `<hub>/plans/<group>/<repo>/`, write architecture + step blueprint, get it approved. |
 | execute | `/flow execute` | Requires a ready-to-execute signal (below). Implement per plan, 1-2 files per batch. |
 | review | `/flow review` | Run the `pre-ship` gate. Fix CRITICAL/HIGH. |
-| reset | `/flow reset` | Save `state_summary.md` + MemPalace, archive the done plan, return to idle. |
+| reset | `/flow reset` | Save the resume breadcrumb + MemPalace, archive the done plan, return to idle. |
 | status | `/flow status` | Show phase, active plan, task. |
 
-## State (in `.finx/`)
+## State (in the hub)
 
-- `flow.json` - `{ phase, activePlan, task, updated }`. The flow-gate reads this.
-- `plans/NNN-slug/plan.md` - one directory per plan, frontmatter `status: draft|approved|in-progress|done|abandoned`. One active plan at a time; guarded at max 3 active with auto-archive of done plans (see the `plans` skill).
-- `state_summary.md` - a volatile resume pointer (phase, done, remaining, next action). Durable state stays in `plan.md`, `git diff`, and the code.
+Everything lives in one hub directory, set by the `hub` key in `flow-config.json` (default `~/.finx/hub`). Nothing is stored in the working repo.
+
+- `sessions/<session_id>.json` - `{ sessionId, repo, phase, activePlan, task, approved, updated }`. The flow-gate reads this.
+- `plans/<group>/<repo>/NNN-slug/plan.md` - one directory per plan, frontmatter `status: draft|approved|in-progress|done|abandoned`. `activePlan` is stored relative to `plans/`. Max 3 active per repo, with auto-archive of done plans (see the `plans` skill).
+- `state/<repo-slug>.md` - a volatile resume pointer (phase, done, remaining, next action). Durable state stays in `plan.md`, `git diff`, and the code.
+
+### Why per session, not per repo
+
+State used to be a single `.finx/flow.json` per repo, found by walking up the directory tree. Two things broke:
+
+- **Inheritance.** A repo with no `.finx/` of its own picked up the nearest ancestor's, so dozens of unrelated repos displayed and were gated by someone else's plan.
+- **Collision.** Engineers routinely run many sessions at once; every session in a repo shared one file, so the last writer won and the others showed the wrong plan.
+
+Work is bounded by a session, not by a directory, so the state is now keyed that way. Several plans open at once across several repos is the normal case. Resolution never walks above the repo root (`git rev-parse --show-toplevel`).
+
+The session id comes from the `FINX_SESSION_ID` line that the `SessionStart` hook injects - a skill is only a prompt and has no other way to know which session it is in.
+
+Session files are garbage-collected on `SessionStart`: dropped when the matching transcript under `~/.claude/projects/` is gone, or after 30 days. The current session and anything under a day old are always kept.
+
+> **Legacy.** A repo-local `.finx/flow.json` is still *read* (repo root only, never written) so flows in flight across the upgrade survive. It is dropped after two releases.
 
 ## Enforcement (the flow-gate)
 
@@ -32,12 +49,14 @@ A `PreToolUse` hook blocks edits to production Java (`**/src/main/**/*.java`) wh
 - `guided` - track the flow, never block.
 - `off` - disabled.
 
-Opt-in: a repo with no `.finx/flow.json` is never gated. Escape a false positive with `FINX_SKIP_HOOKS=1`.
+Opt-in: a session with no flow state is never gated. Escape a false positive with `FINX_SKIP_HOOKS=1`.
+
+**Fail-closed on a missing session id.** `session_id` comes from the harness, not from this plugin. If it stops arriving, state can be neither read nor written, and a gate that silently allowed everything would look installed while enforcing nothing. Under `hybrid`/`hard` the gate blocks non-trivial production-Java edits with an explicit "no session id" message instead. `guided`, `off`, `FINX_SKIP_HOOKS=1` and the trivial-change exemption are unaffected.
 
 ## Long sessions: context-watch and reset
 
 - `UserPromptSubmit` estimates context usage from the transcript. At the threshold (default 65%) it asks whether to `/compact`, save-and-clear-and-reload, or continue. It warns once per 10% bucket.
-- Save-and-reload writes `state_summary.md`; after `/clear`, the `SessionStart` hook reloads it under a RESUME banner so the next session continues at the same phase.
+- Save-and-reload writes `<hub>/state/<repo-slug>.md`; after `/clear`, the `SessionStart` hook reloads it under a RESUME banner so the next session continues at the same phase. The breadcrumb is keyed by repo, not session, precisely because `/clear` starts a new session id.
 - `PreCompact` writes a safety-net snapshot before an unattended auto-compaction.
 
 Prefer `/compact` at the threshold when possible (native, keeps the phase automatically); use clear-and-reload when the context is polluted.
@@ -46,19 +65,19 @@ Prefer `/compact` at the threshold when possible (native, keeps the phase automa
 
 The flow integrates through shared state artifacts, not by owning the commands, so personal plugins and tools coexist with it.
 
-- **Opt-in**: no `.finx/flow.json` means no gate.
+- **Opt-in**: no session state means no gate.
 - **Flow-independent features** work regardless of how you plan/execute: baseline rules, force-guard, review skills, context-watch, `write-docs`, `runtime-stack`.
 - **Gate contract** - the gate opens on any one of these signals, whichever tool produces it:
-  - `.finx/flow.json` has `"phase": "execute"`;
-  - `.finx/flow.json` has `"approved": true`;
-  - `.finx/flow.json.activePlan` points to a `plan.md` whose `status` is `approved` or `in-progress` (any origin).
+  - the session state has `"phase": "execute"`;
+  - the session state has `"approved": true`;
+  - `activePlan` points to a `plan.md` whose `status` is `approved` or `in-progress` (any origin).
 - **Disable per engineer**: `enforcement: guided` or `off` in `~/.finx/flow-config.json`.
 
-Another tool integrates by writing the shared `.finx/flow.json` / `.finx/plans/` artifacts; it does not need to be a finx-core command.
+Another tool integrates by writing the shared `<hub>/sessions/<id>.json` / `<hub>/plans/` artifacts; it does not need to be a finx-core command.
 
 ## Configuration
 
-`/flow-setup` writes `~/.finx/flow-config.json` (per engineer) and/or `<repo>/.finx/flow-config.json` (per project, project wins). Keys: `enforcement`, `contextThreshold`, `contextLimit`, `trivialMaxLines`, `maxActivePlans`, `autoArchiveDays`. A missing file means standard defaults.
+`/flow-setup` writes `~/.finx/flow-config.json` (per engineer) and/or `<repo>/.finx/flow-config.json` (per project, project wins). Keys: `hub`, `enforcement`, `contextThreshold`, `contextLimit`, `trivialMaxLines`, `maxActivePlans`, `autoArchiveDays`. Choose `hub` early - moving it later means rewriting `activePlan` in every session file. A missing file means standard defaults.
 
 ## Related skills
 

@@ -60,7 +60,7 @@ Plugin Claude Code không tự nạp `CLAUDE.md`. Nên baseline always-on đư�
 
 ## Opt-in và tích hợp
 
-Flow là opt-in theo repo: repo không có `.finx/flow.json` không bao giờ bị gate, nên tool cá nhân và plugin khác sống chung được. Các tính năng ngoài flow (baseline, guard, review, docs, rule runtime) áp bất kể bạn plan/execute bằng gì. Xem [Flow](flow.md), mục "Tích hợp với công cụ plan/execute khác".
+Flow là opt-in theo session: session không có flow state không bao giờ bị gate, nên tool cá nhân và plugin khác sống chung được. Các tính năng ngoài flow (baseline, guard, review, docs, rule runtime) áp bất kể bạn plan/execute bằng gì. Xem [Flow](flow.md), mục "Tích hợp với công cụ plan/execute khác".
 
 ## Đi tiếp
 

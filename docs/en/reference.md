@@ -26,8 +26,8 @@ Skills load on demand: Claude invokes one when the context matches its descripti
 
 | Skill | Purpose | Trigger |
 |-------|---------|---------|
-| `flow` | Drive `explore -> plan -> execute -> review -> reset` with state in `.finx/flow.json` | `/flow <phase>`; starting non-trivial work |
-| `plans` | Manage plans under `.finx/plans/` (lifecycle, single active plan, guards) | "list plans", "new plan", "too many plans" |
+| `flow` | Drive `explore -> plan -> execute -> review -> reset` with per-session state in `<hub>/sessions/` | `/flow <phase>`; starting non-trivial work |
+| `plans` | Manage plans under `<hub>/plans/` (lifecycle, single active plan, guards) | "list plans", "new plan", "too many plans" |
 | `plan-tidy` | Migrate loose root `plan*.md` into the structure, with confirmation | "tidy plans", loose plan files at root |
 | `flow-setup` | Configure the flow per engineer/project (enforcement, thresholds) | "flow setup", "configure flow" |
 
@@ -69,7 +69,7 @@ Opt-in per engineer, enabled via the `statusline-setup` skill. A plugin cannot s
   - `full` = two lines — line 1 (work) `repo · phase · active-plan · enforcement · context%`; line 2 (session) `model · session% · reset countdown`. `session%` + reset come from the 5-hour rolling usage window (`rate_limits.five_hour`, Pro/Max only; hidden when absent — line 2 then shows model only).
   - `compact` = one line `repo · phase · context%`.
 - Needs a Nerd Font for glyphs; `--plain` falls back to ASCII.
-- In a repo without `.finx/flow.json`, the flow segments hide automatically (shows repo + context only). Fails safe: any error prints a minimal line rather than breaking the bar.
+- With no flow state for this session, the flow segments hide automatically (shows repo + context only). Fails safe: any error prints a minimal line rather than breaking the bar.
 
 ## Scripts
 
@@ -85,15 +85,15 @@ Four lifecycle events. All fail-open (never break a tool call on error). Escape 
 
 | Event | Script | What it does |
 |-------|--------|--------------|
-| `SessionStart` | `session-start.py` | Inject the baseline; if `.finx/state_summary.md` is fresh, append it under a RESUME banner |
+| `SessionStart` | `session-start.py` | Inject the baseline + `FINX_SESSION_ID`; if the repo's `<hub>/state/` breadcrumb is fresh, append it under a RESUME banner; GC dead session files |
 | `SessionStart` | `version-notice.py` | When the installed finx-core version changed since last session, print the new version and its changelog notes |
 | `SessionStart` | `onboarding-notice.py` | Until the onboarding tour is done (or declined), point the engineer at `/finx-core:onboarding` — at most 3 sessions, state in `~/.finx/.finx-core-onboarding` |
 | `PreToolUse` (Write/Edit) | `precheck.py` | Hard-block high-confidence violations: `var` in new code, `double`/`float` for money, `System.out`/`printStackTrace`, hardcoded secrets |
 | `PreToolUse` (Write/Edit) | `flow-gate.py` | Block non-trivial production-Java edits unless a ready-to-execute signal is present (see [Flow](flow.md)) |
 | `UserPromptSubmit` | `context-watch.py` | Estimate context usage; at ~65% ask whether to compact, save+reset, or continue |
-| `PreCompact` | `flow-reset.py` | Snapshot flow phase + active plan + `git diff --stat` into `.finx/state_summary.md` before compaction |
+| `PreCompact` | `flow-reset.py` | Snapshot flow phase + active plan + `git diff --stat` into the repo's `<hub>/state/` breadcrumb before compaction |
 
 ### Force-guard vs flow-gate
 
 - The **force-guard** (`precheck.py`) is about code content and always applies to production Java writes.
-- The **flow-gate** (`flow-gate.py`) is about workflow state and only applies when the repo runs a flow (`.finx/flow.json` present) with `enforcement` not `off`/`guided`.
+- The **flow-gate** (`flow-gate.py`) is about workflow state and only applies when the session runs a flow (session state present) with `enforcement` not `off`/`guided`.
