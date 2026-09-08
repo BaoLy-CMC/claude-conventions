@@ -2,6 +2,23 @@
 
 All notable changes to the `finx-core` plugin are documented here. Follows [Semantic Versioning](https://semver.org/).
 
+## [1.1.0] - 2026-09-08
+
+### Added
+
+- **Onboarding tour for a newly-installed engineer.** Installing the plugin used
+  to be silent: the baseline and the guards started acting on the first session
+  with nothing explaining what was always on, what was opt-in, and how the flow
+  worked. A `SessionStart` notice now points at the new `onboarding` skill — a
+  ~2 minute tour that verifies the install, explains the four moving parts
+  (baseline, guards, on-demand skills, flow), runs `/flow status` once for real,
+  and then offers `flow-setup`, an output style and `statusline-setup`. Nothing
+  is configured without being asked for.
+
+  The notice goes quiet permanently the moment the tour is started or explicitly
+  declined (marker in `~/.finx/.finx-core-onboarding`, so a plugin update never
+  resurrects it), and caps itself at 3 sessions if simply ignored.
+
 ## [1.0.0] - 2026-09-08
 
 First stable release. No behaviour change since 0.24.0 — the version number is
