@@ -64,12 +64,8 @@ Hub đổi được (key `hub` trong `flow-config.json`, mặc định `~/.finx/
 
 ## Tài liệu
 
-[Tổng quan](docs/vi/overview.md) · [Rules](docs/vi/rules.md) · [Reference](docs/vi/reference.md) · [Flow](docs/vi/flow.md) · [Releasing](docs/vi/releasing.md)
+[Tổng quan](docs/vi/overview.md) · [Rules](docs/vi/rules.md) · [Reference](docs/vi/reference.md) · [Flow](docs/vi/flow.md) · [Releasing](docs/vi/releasing.md) · [CHANGELOG](CHANGELOG.md)
 
 ## Sửa một rule
 
 Văn bản chuẩn nằm ở Confluence space `EN`, trang hub "Backend - Conventions & Standards". Muốn sửa rule: sửa `canonical/conventions.json`, chạy generator, cắt release — xem [Releasing](docs/vi/releasing.md).
-
-## Trạng thái
-
-`2.1.0` · 19 skills · 4 hook event · [CHANGELOG](CHANGELOG.md)

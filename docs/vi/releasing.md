@@ -29,20 +29,22 @@ Version nằm ở hai file và phải khớp: `plugins/finx-core/.claude-plugin/
 ## Quy trình release (maintainer)
 
 1. Sửa (như trên) và **commit với message conventional** (`feat:`, `fix:`, `docs:`, ...) - CHANGELOG được sinh nháp từ đây.
-2. Bump + regenerate + sinh nháp CHANGELOG trong một bước:
+2. Bump + regenerate + sinh nháp CHANGELOG + commit + tag, trong một bước:
    ```bash
    ./release.sh 0.23.0
    ```
-   Nó đặt version ở cả hai manifest, chạy generator, và chạy `changelog.sh` để sinh nháp entry `[0.23.0]` từ các conventional commit kể từ tag gần nhất.
-3. **Tinh chỉnh** entry nháp bằng skill `write-changelog` - biến dòng commit cụt thành ghi chú user-facing nói rõ sửa gì và vì sao - rồi duyệt.
-4. Commit release và tag:
+   Đặt version ở cả hai manifest, chạy generator, sinh nháp entry `[0.23.0]` từ các conventional commit kể từ tag gần nhất, commit đúng những file đó với message `chore: release finx-core 0.23.0`, và tạo tag `v0.23.0`.
+
+   **Nó không push.** Chưa push thì chưa release.
+3. **Tinh chỉnh** entry nháp bằng skill `write-changelog` - biến dòng commit cụt thành ghi chú user-facing nói rõ sửa gì và vì sao. Amend vào commit release.
+4. Release khi sẵn sàng:
    ```bash
-   git add -A
-   git commit -m "chore: release finx-core 0.23.0"
-   git tag v0.23.0
-   git push && git push --tags
+   git push origin main && git push origin v0.23.0
    ```
-5. Thông báo (tùy chọn - engineer tự update khi restart).
+
+> **Push `main` mới là release.** Bản clone marketplace trên máy mỗi engineer bám nhánh mặc định chứ không bám tag — nó đọc version từ `.claude-plugin/marketplace.json` trên `main`. Tag chưa push, hoặc giữ lại chưa push, nghĩa là chưa ai có. Ngược lại, bất kỳ push nào lên `main` mang theo `marketplace.json` đã bump là ship ngay lập tức.
+
+Nếu entry CHANGELOG được viết tay dưới `## [Unreleased]`, đổi tiêu đề thành `## [<version>] - <ngày>` **trước** khi chạy `release.sh` — `changelog.sh` bỏ qua version đã tồn tại, nhờ vậy phần viết tay không bị bản sinh tự động đè lên.
 
 CHANGELOG là hybrid: `changelog.sh` sinh nháp deterministic từ commit; skill `write-changelog` thêm văn xuôi. Chạy `./changelog.sh <version>` riêng để (tái) sinh nháp mà không bump.
 

@@ -64,12 +64,8 @@ Hub is configurable (`hub` in `flow-config.json`, default `~/.finx/hub`). Detail
 
 ## Docs
 
-[Overview](docs/en/overview.md) · [Rules](docs/en/rules.md) · [Reference](docs/en/reference.md) · [Flow](docs/en/flow.md) · [Releasing](docs/en/releasing.md)
+[Overview](docs/en/overview.md) · [Rules](docs/en/rules.md) · [Reference](docs/en/reference.md) · [Flow](docs/en/flow.md) · [Releasing](docs/en/releasing.md) · [CHANGELOG](CHANGELOG.md)
 
 ## Changing a rule
 
 Prose lives in Confluence space `EN`, hub "Backend - Conventions & Standards". To change a rule: edit `canonical/conventions.json`, run the generator, cut a release — see [Releasing](docs/en/releasing.md).
-
-## Status
-
-`2.1.0` · 19 skills · 4 hook events · [CHANGELOG](CHANGELOG.md)

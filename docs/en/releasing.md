@@ -29,20 +29,22 @@ The version lives in two files and must match: `plugins/finx-core/.claude-plugin
 ## Maintainer release workflow
 
 1. Make the change (above) and **commit it with conventional messages** (`feat:`, `fix:`, `docs:`, ...) - the CHANGELOG is drafted from these.
-2. Bump + regenerate + draft the CHANGELOG in one step:
+2. Bump + regenerate + draft the CHANGELOG + commit + tag, in one step:
    ```bash
    ./release.sh 0.23.0
    ```
-   This sets the version in both manifests, runs the generator, and runs `changelog.sh` to draft a `[0.23.0]` entry from the conventional commits since the last tag.
-3. **Refine** the drafted entry with the `write-changelog` skill - turn terse commit lines into user-facing notes that say what changed and why - and approve.
-4. Commit the release and tag:
+   Sets the version in both manifests, runs the generator, drafts a `[0.23.0]` CHANGELOG entry from the conventional commits since the last tag, commits just those files as `chore: release finx-core 0.23.0`, and tags `v0.23.0`.
+
+   **It does not push.** Nothing is released until you do.
+3. **Refine** the drafted entry with the `write-changelog` skill - turn terse commit lines into user-facing notes that say what changed and why. Amend the release commit.
+4. Release when ready:
    ```bash
-   git add -A
-   git commit -m "chore: release finx-core 0.23.0"
-   git tag v0.23.0
-   git push && git push --tags
+   git push origin main && git push origin v0.23.0
    ```
-5. Announce (optional - engineers auto-update on restart).
+
+> **Pushing `main` is the release.** The marketplace clone on each engineer's machine tracks the default branch, not tags — it reads the version out of `.claude-plugin/marketplace.json` on `main`. A tag that has not been pushed, or a push held back, means nobody has it yet. Conversely, any push to `main` carrying a bumped `marketplace.json` ships immediately.
+
+If a CHANGELOG entry was written by hand under `## [Unreleased]`, rename it to `## [<version>] - <date>` **before** running `release.sh` — `changelog.sh` skips a version that already exists, so the hand-written prose survives instead of being replaced by the generated draft.
 
 The CHANGELOG is hybrid: `changelog.sh` drafts deterministically from commits; the `write-changelog` skill adds the prose. Run `./changelog.sh <version>` on its own to (re)draft without bumping.
 
