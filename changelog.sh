@@ -41,7 +41,11 @@ raw = subprocess.run(
 SECTION = {"feat": "Added", "fix": "Fixed", "perf": "Changed",
            "refactor": "Changed", "revert": "Changed", "docs": "Docs"}
 groups = {"Added": [], "Changed": [], "Fixed": [], "Docs": []}
-pat = re.compile(r"^(\w+)(\([^)]*\))?(!)?:\s*(.+)$")
+# An optional "[JIRA-123] " prefix is accepted and dropped: the commit convention puts the
+# ticket in the subject so `git log --oneline` stays greppable per ticket, but a CHANGELOG
+# is read by people outside the tracker, to whom an internal key means nothing. Without
+# this the whole subject fails to match and the commit vanishes from the release notes.
+pat = re.compile(r"^(?:\[[A-Z][A-Z0-9]*-\d+\]\s*)?(\w+)(\([^)]*\))?(!)?:\s*(.+)$")
 
 for subj in raw:
     m = pat.match(subj.strip())
