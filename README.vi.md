@@ -14,11 +14,12 @@ Plugin [Claude Code](https://claude.com/claude-code) dùng chung (`finx-core`). 
 
 Mở session mới, chạy **`/finx-core:onboarding`** — tour 2 phút, dựng hub và các tuỳ chọn cho bạn.
 
-Hai lệnh cần nhớ:
+Vài lệnh cần nhớ:
 
 | | |
 |---|---|
 | `/flow explore <task>` | mở việc lớn |
+| `/flow save` | nghỉ giữa chừng trước `/clear` — trả về một handle |
 | `/finx-core:pre-ship` | trước khi tạo PR |
 
 ## Chạy thế nào
@@ -55,7 +56,8 @@ Code Java production loại lớn bị chặn tới khi plan được duyệt. S
 
 ```
 <hub>/plans/<group>/<repo>/NNN-slug/plan.md   plan mọi repo, gom một chỗ
-<hub>/sessions/<session_id>.json              mỗi session một file
+<hub>/sessions/<session_id>.json              flow state, mỗi session một file
+<hub>/state/<repo-slug>/<handle>.md           điểm resume của /flow save
 ```
 
 Hub đổi được (key `hub` trong `flow-config.json`, mặc định `~/.finx/hub`). Chi tiết: [Flow](docs/vi/flow.md).
@@ -70,4 +72,4 @@ Văn bản chuẩn nằm ở Confluence space `EN`, trang hub "Backend - Convent
 
 ## Trạng thái
 
-`2.0.0` · 19 skills · 4 hook event · [CHANGELOG](CHANGELOG.md)
+`2.1.0` · 19 skills · 4 hook event · [CHANGELOG](CHANGELOG.md)

@@ -14,11 +14,12 @@ Shared [Claude Code](https://claude.com/claude-code) plugin (`finx-core`). FinX 
 
 Open a new session, then run **`/finx-core:onboarding`** — 2-minute tour, sets up your hub and options.
 
-Two commands worth remembering:
+Commands worth remembering:
 
 | | |
 |---|---|
 | `/flow explore <task>` | start non-trivial work |
+| `/flow save` | pause before `/clear` — returns a handle |
 | `/finx-core:pre-ship` | before a PR |
 
 ## How it works
@@ -55,7 +56,8 @@ Non-trivial production Java is gated until a plan is approved. State is **per se
 
 ```
 <hub>/plans/<group>/<repo>/NNN-slug/plan.md   every repo's plans, one place
-<hub>/sessions/<session_id>.json              one file per session
+<hub>/sessions/<session_id>.json              flow state, one file per session
+<hub>/state/<repo-slug>/<handle>.md           resume point for /flow save
 ```
 
 Hub is configurable (`hub` in `flow-config.json`, default `~/.finx/hub`). Details: [Flow](docs/en/flow.md).
@@ -70,4 +72,4 @@ Prose lives in Confluence space `EN`, hub "Backend - Conventions & Standards". T
 
 ## Status
 
-`2.0.0` · 19 skills · 4 hook events · [CHANGELOG](CHANGELOG.md)
+`2.1.0` · 19 skills · 4 hook events · [CHANGELOG](CHANGELOG.md)
