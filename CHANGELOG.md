@@ -2,6 +2,30 @@
 
 All notable changes to the `finx-core` plugin are documented here. Follows [Semantic Versioning](https://semver.org/).
 
+## [0.24.0] - 2026-09-08
+
+### Added
+
+- **The baseline now covers the parts of engineering that used to live in personal rule files.** Six new sections: concurrency and transactions (guard shared mutable state; `REQUIRED` by default; never hold a lock across a network call), memory and data access (no >512KB allocation on a hot path, always paginate, `BIGSERIAL` primary keys, no foreign keys, per-query timeouts), common-libs routing (each cluster uses its own lib, no cross-import), comments (none by default; only WHY, one short line), commits and PRs (branch and commit format per the Git RFC, PR structure), and the ARB API contract.
+- **The ARB API contract is now enforceable.** The `status`/`payload`/`meta` envelope, the status mapping (business rule 422, conflict 409, action-required 428, validation-only 400, dependency down 503), empty-is-200-not-404, 404-instead-of-403 so ids cannot be enumerated, idempotent replay on money paths, and W3C `traceparent` propagation. Full detail plus a PR checklist in the new `api-response-standards` skill.
+- **Four skills from standards that previously only existed as Confluence pages.** `api-response-standards`, `ops-runtime` (workload probes, heap flags, HPA, plus the production `CREATE INDEX CONCURRENTLY` procedure), `release-workload` (the three release stages, `.done` idempotency, tag immutability), and `integration-test` (the org standard: a suite that skips when unconfigured, containers over shared infrastructure, assertions matched to data ownership).
+- **`scripts/check-skills.py`** lints every skill against the Agent Skills authoring limits and runs as `pre-ship` step 7, so a skill cannot drift into being unusable by an agent.
+- **Three opt-in output styles and an opt-in flow-aware statusline**, so each engineer can pick how much explanation they get without changing any team rule.
+
+### Changed
+
+- **Downstream calls on a money path now branch on whether a side effect can have happened, not on whether the call timed out.** Nothing sent yet answers 503 and is safe to retry; a request that was sent and then timed out answers 200 with `PROCESSING` and the transaction id, and the client polls. A 5xx there would invite the automatic retry that causes a double charge.
+- **OTP no longer maps to 429.** 429 is rate limiting; OTP, KYC and approval are 428.
+- **Lombok guidance is explicit** — use it where it removes real boilerplate (`@RequiredArgsConstructor`, `@Getter`, `@Builder`, `@Slf4j`), never `@Data` on a JPA entity.
+- **Logging rules gained the level-to-status mapping**: a 4xx business error logs `WARN`, a 5xx logs `ERROR` with the exception last, `INFO` is reserved for five specific cases, and `FATAL` is banned.
+- **`create-liquibase-changeset` matches the repo again**: `GRANT` statements for new objects, one atomic change per file, schema and backward-compatibility rules, and `runInTransaction="false"` for concurrent index builds. The 2022 Confluence page saying changesets need no rollback is superseded by the repo's own review checklist.
+- **Every skill was rewritten to the Agent Skills authoring rules** — third person, no dated framing that goes stale, copyable progress checklists on procedural skills, and conflicting sources recorded in a collapsed section rather than inline.
+
+### Fixed
+
+- **`precheck.py` blocks three more violations before they land**: `@Autowired` on a field, an empty catch block, and string concatenation inside a log call.
+- **`changelog.sh` no longer drops commits** whose subject starts with a `[JIRA-KEY]` prefix.
+
 ## [0.23.1] - 2026-07-10
 
 ### Fixed
