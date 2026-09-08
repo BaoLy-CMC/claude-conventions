@@ -2,6 +2,74 @@
 
 All notable changes to the `finx-core` plugin are documented here. Follows [Semantic Versioning](https://semver.org/).
 
+## [2.0.0] - 2026-09-08
+
+### Changed
+
+- **Flow state is now keyed by session, not by directory.** State moved from a
+  per-repo `.finx/flow.json` to `<hub>/sessions/<session_id>.json`. Two failures
+  drove this, both measured on a real machine: a repo with no `.finx/` of its own
+  inherited the nearest ancestor's state through the find-up walk, so 65
+  unrelated repos displayed and were gated by someone else's plan; and engineers
+  routinely run many sessions at once — 21 in a single directory on the day this
+  was written — all sharing one file, so the last writer won and every other
+  session showed the wrong plan. Work is bounded by a session, not by a
+  directory. Several plans open at once across repos is now the supported normal
+  case rather than something to work around.
+
+- **Plans live in one hub instead of each repo.** `<hub>/plans/<group>/<repo>/NNN-slug/plan.md`,
+  with `activePlan` stored relative to `<hub>/plans/`. The hub is configurable via
+  the new `hub` key in `flow-config.json` (default `~/.finx/hub`); `flow-setup`
+  and `onboarding` now ask for it up front, since moving it later means rewriting
+  `activePlan` in every session file.
+
+- **Nothing walks above the repo root any more.** Resolution uses
+  `git rev-parse --show-toplevel`. A repo without its own state gets no state.
+
+- The resume breadcrumb moved from `.finx/state_summary.md` to
+  `<hub>/state/<repo-slug>.md`. It stays keyed by **repo**, not session, because
+  `/clear` starts a new session id and a session-keyed breadcrumb could never be
+  picked up again.
+
+### Added
+
+- `hooks/finxflow.py` — shared state/hub/config resolution, replacing four
+  separate copies of `find_up`, which is what let the inheritance bug exist in
+  four places at once.
+- `SessionStart` now emits `FINX_SESSION_ID`. A skill is only a prompt and has no
+  other way to learn its session id; every session-keyed skill depends on this.
+- Session files are garbage-collected on `SessionStart` — dropped when the
+  matching transcript under `~/.claude/projects/` is gone, or after 30 days. The
+  current session and anything under a day old are always kept.
+- `scripts/plans-index.py` regenerates `<hub>/plans/INDEX.md`: every plan of every
+  repo, plus which session holds which plan open.
+- `hooks/test_finxflow.py` — self-check covering the four failures above, plus the
+  fail-closed behaviour below.
+
+### Fixed
+
+- **The flow-gate no longer fails open when `session_id` is missing.** That field
+  is supplied by the harness, not by this plugin; if a Claude Code release ever
+  stops sending it, state can be neither read nor written and the previous code
+  would silently return "allow" for every edit — a gate that looks installed and
+  enforces nothing. It now blocks non-trivial production-Java edits with an
+  explicit "no session id" message instead. `guided`, `off`, `FINX_SKIP_HOOKS=1`
+  and the trivial-change exemption all still work, so the escape hatches are
+  intact. This matches the posture `gc_sessions` already took, where an empty
+  transcript listing falls back to TTL-only rather than deleting live state.
+
+### Deprecated
+
+- A repo-local `.finx/flow.json` is still **read** (at the repo root only, never
+  written) so flows in flight across the upgrade survive. It is dropped after two
+  releases.
+
+### Migration
+
+Existing plans do not move themselves. Run `plan-tidy`, which now gathers loose
+plans and per-repo `.finx/plans/` trees into the hub, backs up first, dry-runs,
+and verifies every rewritten `activePlan` resolves.
+
 ## [1.1.0] - 2026-09-08
 
 ### Added
