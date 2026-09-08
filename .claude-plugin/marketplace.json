@@ -13,7 +13,7 @@
       "name": "finx-core",
       "source": "./plugins/finx-core",
       "description": "Core FinX backend conventions: coding standards, logging, error handling, API versioning, envelope-by-cluster, banking domain rules, and cross-repo operations (liquibase, kafka, gateway/openapi, workload).",
-      "version": "0.24.0",
+      "version": "1.0.0",
       "author": {
         "name": "FinX Backend Engineering"
       }

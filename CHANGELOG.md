@@ -2,6 +2,39 @@
 
 All notable changes to the `finx-core` plugin are documented here. Follows [Semantic Versioning](https://semver.org/).
 
+## [1.0.0] - 2026-09-08
+
+First stable release. No behaviour change since 0.24.0 — the version number is
+the statement: the convention surface is now considered stable, and breaking
+changes to it get a major bump from here on.
+
+### What "stable" means
+
+- **Baseline (17 sections, 92 lines)** — the always-on rules are complete enough
+  to cover a normal backend change end to end: working principles, runtime
+  versions, response envelope, errors and logging, API and the ARB contract,
+  banking domain, concurrency and transactions, memory and data access,
+  common-libs routing, comments, cross-repo operations, commits and PRs,
+  architecture decisions, discipline.
+- **18 skills** covering review (logging, error handling, API response
+  standards), authoring (service scaffold, liquibase changeset, docs,
+  changelog), the flow and plan lifecycle, runtime and release operations, and
+  the integration-test standard — each one linted against the Agent Skills
+  authoring limits by `scripts/check-skills.py`.
+- **Machine-checked rules** — `precheck.py` hard-blocks seven classes of
+  violation before an edit lands, `flow-gate.py` blocks non-trivial production
+  Java without an approved plan, and every convention is generated from
+  `canonical/conventions.json` into both the Claude baseline and the Kiro
+  steering files, so the two never drift.
+- **Traceable to a source** — each rule cites the Confluence page it came from,
+  and where two pages disagree the skill records which one it follows and why.
+
+### Compatibility
+
+Installed plugins auto-update on restart; nothing needs re-installing. Rules,
+skill names and hook events are unchanged from 0.24.0, so no engineer has to
+adjust anything.
+
 ## [0.24.0] - 2026-09-08
 
 ### Added
