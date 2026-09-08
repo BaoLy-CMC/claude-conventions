@@ -12,7 +12,7 @@ Một plugin [Claude Code](https://claude.com/claude-code) dùng chung (`finx-co
 /reload-plugins
 ```
 
-Mở session mới để nạp baseline always-on. Có thể chạy `/flow-setup` để tùy biến; không thì dùng mặc định chuẩn.
+Mở session mới để nạp baseline always-on, rồi chạy `/finx-core:onboarding` — tour ~2 phút về cái gì chạy tự động, cái gì opt-in, và flow hoạt động ra sao. Vài phiên đầu sau khi cài cũng sẽ tự nhắc.
 
 ## Nhìn tổng thể
 
@@ -23,6 +23,7 @@ Mở session mới để nạp baseline always-on. Có thể chạy `/flow-setup
 | Skills | Playbook theo nhu cầu (review, flow, tạo/soạn) | `skills/` |
 | Flow | `explore -> plan -> execute -> review -> reset` | Skill `flow` + state `.finx/` |
 | Theo kỹ sư | Trình bày opt-in: 3 output style + statusline theo flow | `output-styles/`, `statusline-setup` |
+| Onboarding | Tour lần đầu, rồi cấu hình các tuỳ chọn được chọn | Skill `onboarding` + thông báo `SessionStart` |
 
 ## Kiến trúc (một hình)
 
@@ -56,4 +57,4 @@ Văn bản chuẩn nằm ở Confluence, space `EN` (Engineering), trang hub "Ba
 
 ## Trạng thái
 
-`1.0.0`. 18 skill, 4 hook event, flow đầy đủ với gate tool-agnostic, quản lý plan, thông báo cập nhật version, generator canonical -> Kiro/Claude, cùng phần trình bày opt-in theo kỹ sư (3 output style + statusline theo flow). Lịch sử trong [CHANGELOG.md](CHANGELOG.md).
+`1.0.0`. 19 skill, 4 hook event, flow đầy đủ với gate tool-agnostic, quản lý plan, thông báo cập nhật version, generator canonical -> Kiro/Claude, cùng phần trình bày opt-in theo kỹ sư (3 output style + statusline theo flow). Lịch sử trong [CHANGELOG.md](CHANGELOG.md).

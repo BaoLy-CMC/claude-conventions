@@ -12,7 +12,7 @@ A shared [Claude Code](https://claude.com/claude-code) plugin (`finx-core`) that
 /reload-plugins
 ```
 
-Start a new session so the always-on baseline loads. Optionally run `/flow-setup` to personalize; otherwise standard defaults apply.
+Start a new session so the always-on baseline loads, then run `/finx-core:onboarding` — a ~2 minute tour of what runs automatically, what is opt-in, and how the flow works. The first sessions after install point at it too.
 
 ## At a glance
 
@@ -23,6 +23,7 @@ Start a new session so the always-on baseline loads. Optionally run `/flow-setup
 | Skills | On-demand playbooks (reviews, flow, authoring) | `skills/` |
 | Flow | `explore -> plan -> execute -> review -> reset` | `flow` skill + `.finx/` state |
 | Per-engineer | Opt-in presentation: 3 output styles + a flow-aware statusline | `output-styles/`, `statusline-setup` |
+| Onboarding | First-run guided tour, then wires up the chosen opt-ins | `onboarding` skill + `SessionStart` notice |
 
 ## Architecture (one picture)
 
@@ -56,4 +57,4 @@ The authoritative prose lives in Confluence, space `EN` (Engineering), hub "Back
 
 ## Status
 
-`1.0.0`. 18 skills, 4 hook events, the full flow with a tool-agnostic gate, plan management, version-update notice, the canonical -> Kiro/Claude generator, plus per-engineer opt-in presentation (3 output styles + a flow-aware statusline). History in [CHANGELOG.md](CHANGELOG.md).
+`1.0.0`. 19 skills, 4 hook events, the full flow with a tool-agnostic gate, plan management, version-update notice, the canonical -> Kiro/Claude generator, plus per-engineer opt-in presentation (3 output styles + a flow-aware statusline). History in [CHANGELOG.md](CHANGELOG.md).

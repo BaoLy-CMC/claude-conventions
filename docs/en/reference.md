@@ -6,6 +6,12 @@ Tiếng Việt: [../vi/reference.md](../vi/reference.md) | Back to [README](../.
 
 Skills load on demand: Claude invokes one when the context matches its description, or you can call it by name.
 
+### Getting started
+
+| Skill | Purpose | Trigger |
+|-------|---------|---------|
+| `onboarding` | Guided first-run tour: what is always on, what loads on demand, how the flow works, then wires up the chosen opt-ins | Right after install; the session-start onboarding notice; "how do I use finx-core", "getting started" |
+
 ### Reviews
 
 | Skill | Purpose | Trigger |
@@ -81,6 +87,7 @@ Four lifecycle events. All fail-open (never break a tool call on error). Escape 
 |-------|--------|--------------|
 | `SessionStart` | `session-start.py` | Inject the baseline; if `.finx/state_summary.md` is fresh, append it under a RESUME banner |
 | `SessionStart` | `version-notice.py` | When the installed finx-core version changed since last session, print the new version and its changelog notes |
+| `SessionStart` | `onboarding-notice.py` | Until the onboarding tour is done (or declined), point the engineer at `/finx-core:onboarding` — at most 3 sessions, state in `~/.finx/.finx-core-onboarding` |
 | `PreToolUse` (Write/Edit) | `precheck.py` | Hard-block high-confidence violations: `var` in new code, `double`/`float` for money, `System.out`/`printStackTrace`, hardcoded secrets |
 | `PreToolUse` (Write/Edit) | `flow-gate.py` | Block non-trivial production-Java edits unless a ready-to-execute signal is present (see [Flow](flow.md)) |
 | `UserPromptSubmit` | `context-watch.py` | Estimate context usage; at ~65% ask whether to compact, save+reset, or continue |
