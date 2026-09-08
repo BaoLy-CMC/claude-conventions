@@ -9,6 +9,20 @@ Create a new changeset in the `non-prod-liquibase` repo. The repo's own `CLAUDE.
 
 ## Steps
 
+Copy this checklist and check items off while working:
+
+```
+Changeset progress:
+- [ ] 1. Repo located, target <env>/<db> confirmed with the user
+- [ ] 2. Next NNN sequence read from changes/
+- [ ] 3. author + DD.MM.YYYY + slug settled (author asked, never guessed)
+- [ ] 4. File written in the exact enforced format
+- [ ] 5. <rollback> filled with real SQL, GRANTs added if new objects
+- [ ] 6. make lint passes
+- [ ] 7. One file per target env, if several were requested
+```
+
+
 1. **Locate the repo** (`non-prod-liquibase/`, sibling of the service repos).
 2. **Determine target `<env>/<db>`**: list `changelogs/` to see valid environments (`dev`, `uat`, `stg`, `fsap-dev`, `fsap-uat`, `digital-uat`, `digital-stg`) and the db folders under each. If the env/db pair or which environments to target is unclear, **ask the user** — a wrong path silently targets the wrong DB.
 3. **Next sequence number**: list `changelogs/<env>/<db>/changes/`, take the highest `NNN_` prefix, add 1, zero-pad to 3 digits.

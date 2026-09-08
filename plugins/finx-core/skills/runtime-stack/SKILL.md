@@ -12,7 +12,7 @@ Java and Spring Boot versions differ across FinX services. Detect the target fir
 - **Java**: Gradle `settings.gradle`/`build.gradle` toolchain (`JavaLanguageVersion.of(21|25)`), `sourceCompatibility`/`release`, `libs.versions.toml`; Maven `<java.version>` / `<maven.compiler.release>`.
 - **Spring Boot**: the `org.springframework.boot` plugin version, the parent POM version, or `libs.versions.toml`.
 
-State what you detected (e.g. "Java 25 + Spring Boot 4") before editing. If the build files disagree or are unclear, ask.
+State the detected stack (e.g. "Java 25 + Spring Boot 4") before editing. If the build files disagree or are unclear, ask.
 
 ## Java 21 vs 25 (both LTS)
 
@@ -33,7 +33,7 @@ Rule: write to the project's release level. Do not introduce newer-than-declared
 | JSON | Jackson 2 | Jackson 3 (verify serialization config on upgrade) |
 | Deprecations | 3.x deprecations still present | **All 3.x deprecations removed — no grace period** |
 | Dropped | — | Undertow starter, JUnit 4 |
-| Packaging | monolithic starters | modularized into many focused JARs — depend on the specific modules you use |
+| Packaging | monolithic starters | modularized into many focused JARs — depend on the specific modules in use |
 
 ## Rules
 

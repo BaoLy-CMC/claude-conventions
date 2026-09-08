@@ -65,6 +65,14 @@ Opt-in per engineer, enabled via the `statusline-setup` skill. A plugin cannot s
 - Needs a Nerd Font for glyphs; `--plain` falls back to ASCII.
 - In a repo without `.finx/flow.json`, the flow segments hide automatically (shows repo + context only). Fails safe: any error prints a minimal line rather than breaking the bar.
 
+## Scripts
+
+| Script | Does | Run it |
+|--------|------|--------|
+| `canonical/generate.py` | Regenerate the baseline + Kiro steering files from `canonical/conventions.json` | After editing a convention |
+| `scripts/check-skills.py` | Lint every `SKILL.md` against the Agent Skills authoring limits (name matches directory, description <= 1024 chars and says when to use it, body < 500 lines, references one level deep with a table of contents over 100 lines, no XML tags, third person) | Before releasing a skill change; step 7 of `pre-ship` |
+| `scripts/finx-statusline.sh` | Render the flow-aware powerline statusline | Wired by `statusline-setup` |
+
 ## Hooks
 
 Four lifecycle events. All fail-open (never break a tool call on error). Escape hatch for a false positive: `FINX_SKIP_HOOKS=1`.

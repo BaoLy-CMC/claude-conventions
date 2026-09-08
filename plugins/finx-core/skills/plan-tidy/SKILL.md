@@ -29,5 +29,5 @@ Consolidate scattered plan files (`plan.md`, `plan-*.md`, `*-plan.md`, `sync-mat
 ## Guardrails
 
 - Never overwrite an existing `.finx/plans/` entry — pick the next free `NNN`.
-- Never delete a file you did not migrate.
+- Never delete a file that was not migrated.
 - If a root file is clearly NOT a plan (e.g. a data dump), leave it and note it.

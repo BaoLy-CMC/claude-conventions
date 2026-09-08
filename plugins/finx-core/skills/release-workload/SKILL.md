@@ -18,6 +18,21 @@ Production releases are driven by the **`platform-release-processes`** repo. An 
 | 2 | `pre_release/` | `repos.yaml` (`name`, `tag`, `branch`, `process`) | Tags `vX.Y.Z` |
 | 3 | `release/` | `release-note.yaml` | Opens the `prod-application-workload` PR + publishes the Confluence checklist |
 
+## Checklist per stage
+
+Copy this checklist and check items off while working:
+
+```
+Release progress (stage <1|2|3>):
+- [ ] 1. Correct stage root and <yyyy-MM-dd>/<team>/ folder
+- [ ] 2. Config YAML lists exactly the intended repos (nothing discovered automatically)
+- [ ] 3. Stage 1: every from_branch exists. Stage 2: tag matches ^v\d+\.\d+\.\d+(-hotfix)?$ and branch exists. Stage 3: every process:true repo is in workload-repos-mapping.yaml
+- [ ] 4. .done deleted in the same PR when re-running the folder
+- [ ] 5. CI green on the PR (deterministic validation, not the Copilot comment)
+- [ ] 6. After merge: CD output checked — branch cut / tag created / workload PR + Confluence page published
+- [ ] 7. Already-merged workload PR: rolled forward with a new tag, never re-tagged in place
+```
+
 ## Invariants
 
 - **Nothing changes before merge.** CI runs `--mode ci` on the pull request and only validates (`contents: read`); CD runs `--mode cd` on push to `main`.

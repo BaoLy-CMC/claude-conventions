@@ -65,6 +65,14 @@ Opt-in theo từng kỹ sư, bật qua skill `statusline-setup`. Plugin không t
 - Cần Nerd Font cho glyph; `--plain` fallback về ASCII.
 - Repo không có `.finx/flow.json` thì phần flow tự ẩn (chỉ còn repo + context). Fail-safe: lỗi thì in dòng tối giản thay vì làm hỏng bar.
 
+## Script
+
+| Script | Làm gì | Chạy khi nào |
+|--------|--------|--------------|
+| `canonical/generate.py` | Sinh lại baseline + file steering Kiro từ `canonical/conventions.json` | Sau khi sửa convention |
+| `scripts/check-skills.py` | Lint mọi `SKILL.md` theo giới hạn authoring của Agent Skills (name khớp thư mục, description <= 1024 ký tự và có nói khi nào dùng, body < 500 dòng, reference một cấp và có mục lục nếu quá 100 dòng, không chứa XML tag, viết ở ngôi thứ ba) | Trước khi release thay đổi skill; bước 7 của `pre-ship` |
+| `scripts/finx-statusline.sh` | Render statusline powerline theo flow | Do `statusline-setup` cấu hình |
+
 ## Hooks
 
 Bốn sự kiện lifecycle. Tất cả fail-open (không làm hỏng tool call khi lỗi). Lối thoát khi chặn nhầm: `FINX_SKIP_HOOKS=1`.

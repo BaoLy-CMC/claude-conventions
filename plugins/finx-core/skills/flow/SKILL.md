@@ -1,6 +1,6 @@
 ---
 name: flow
-description: Drive and track the enforced FinX dev flow — explore → plan → execute → review → reset — with per-repo state in .finx/flow.json. Use when the user says "/flow", "start flow", "flow status", "next phase", "explore <task>", "move to execute", "review", "reset flow", or when beginning non-trivial work that should follow the disciplined flow. Named `flow` (single command with a phase arg) to avoid colliding with any personal explore/plan/execute/reset skills.
+description: Drive and track the enforced FinX dev flow — explore → plan → execute → review → reset — with per-repo state in .finx/flow.json. Use when the user says "/flow", "start flow", "flow status", "next phase", "explore [task]", "move to execute", "review", "reset flow", or when beginning non-trivial work that should follow the disciplined flow. Named `flow` (single command with a phase arg) to avoid colliding with any personal explore/plan/execute/reset skills.
 ---
 
 # FinX Dev Flow

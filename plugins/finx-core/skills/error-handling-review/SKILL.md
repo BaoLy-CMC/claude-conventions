@@ -28,7 +28,7 @@ rg -n '@RestControllerAdvice|@ExceptionHandler' <files>         # ad-hoc advice 
 | # | Rule |
 |---|---|
 | 1 | Error codes use the `ErrorCode` enum in `DOMAIN.CODE` format (e.g. `PAYMENT.INSUFFICIENT_FUNDS`) — no free-form strings like `"Transaction duplicated"` |
-| 2 | HTTP mapping correct (ARB 2026-08): business rule → **422**; duplicate/idempotency/version conflict → **409**; OTP/KYC/approval required → **428**; validation only → **400**; unauthenticated → **401**; missing functional permission → **403**; not-found → **404**; rate limit → **429** + `Retry-After`; our bug → **500**; dependency down → **503**. A business rule must never be 400 or 500; OTP is 428, not 429. Detail: `api-response-standards` |
+| 2 | HTTP mapping correct: business rule → **422**; duplicate/idempotency/version conflict → **409**; OTP/KYC/approval required → **428**; validation only → **400**; unauthenticated → **401**; missing functional permission → **403**; not-found → **404**; rate limit → **429** + `Retry-After`; a bug in this service → **500**; dependency down → **503**. A business rule must never be 400 or 500; OTP is 428, not 429. Detail: `api-response-standards` |
 | 3 | "Log once, handle once": service layer **throws**, does not log; `GlobalExceptionHandler` (single boundary) logs + translates. Kafka consumers log + route to DLQ at the consumer boundary. |
 | 4 | Response envelope matches the repo cluster (fsap vs non-fsap, see step 2). No new local `ResponseApi` definition. |
 | 5 | Exceptions extend the shared hierarchy (`FsapException`/`common.fsap` for fsap; the project's base for non-fsap) — not bare `RuntimeException` with no code |

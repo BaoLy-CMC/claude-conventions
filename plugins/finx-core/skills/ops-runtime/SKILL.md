@@ -118,6 +118,22 @@ MeterRegistryCustomizer<MeterRegistry> metricsCommonTags(
 
 ## 3. Creating an index on a production table
 
+Copy this checklist and check items off while working:
+
+```
+Production index progress:
+- [ ] 1. EXPLAIN ANALYZE proves the query needs it; no existing index serves it
+- [ ] 2. Selectivity, write cost and index size estimated
+- [ ] 3. Duplicates pre-checked (unique index only) — 0 rows
+- [ ] 4. Build time measured on staging with comparable volume
+- [ ] 5. Free disk >= 2x index size; no transaction older than 5 minutes; replica lag normal
+- [ ] 6. PR approved by DBA/Tech Lead, rollback statement included
+- [ ] 7. Window booked (00:00-04:00, not month-end); affected teams notified
+- [ ] 8. CIC executed outside a transaction with statement_timeout=0, lock_timeout=60s
+- [ ] 9. indisvalid/indisready/indislive verified true; ANALYZE run
+- [ ] 10. Planner confirmed using the index (EXPLAIN ANALYZE again)
+```
+
 Golden rules (PostgreSQL / Aurora, tables >= 1M rows):
 
 1. **Never** plain `CREATE INDEX` on production — it takes a `ShareLock` and blocks every INSERT/UPDATE/DELETE until the build finishes (hours on a 100M-row table).

@@ -29,7 +29,7 @@ The org-wide standard already exists in Confluence together with a port procedur
 ## Containers or a shared environment
 
 - **E1 Container by default** — isolated, repeatable, cannot damage anything. Kafka and Redis are always Testcontainers.
-- **E2** A shared environment only when what you are testing **exists nowhere else** (typically: the schema, when the repo owns no migrations; and downstream contracts, where a mock would only assert your own assumptions). Write the reason in the class javadoc.
+- **E2** A shared environment only when what the test exercises **exists nowhere else** (typically: the schema, when the repo owns no migrations; and downstream contracts, where a mock would only assert this service's own assumptions). Write the reason in the class javadoc.
 - **E3** Every such exception is a debt item, not a design choice.
 - **E4 Never point a test at shared messaging or shared caches.** Joining a live consumer group steals partitions from running pods and processes real traffic on a laptop; a fresh group id consumes the whole topic and writes duplicates; shared counters (sequences, vouchers) get consumed for real.
 - **E5** Containers are shared across the suite, not per class, and coordinates are injected by overriding the **env-var placeholder names the YAML already references** (`KAFKA_PLAINTEXT_SERVERS`, `REDIS_HOST`, …) via `@DynamicPropertySource`. `@ServiceConnection` cannot reach nested per-consumer `properties[bootstrap.servers]` keys or hand-rolled `@Value` blocks.
@@ -80,6 +80,22 @@ The org-wide standard already exists in Confluence together with a port procedur
 - `Could not resolve placeholder 'SPRING_PROFILE_ACTIVE'`: `@ActiveProfiles` selects a profile but does not make the placeholder resolvable — register it in `@DynamicPropertySource`.
 - Pin `apache/kafka:3.8.1` (or `4.0.0`). The `3.9.0` image's `KafkaDockerWrapper` ignores `KAFKA_ADVERTISED_LISTENERS` when it arrives via the Testcontainers startup script, and the container dies with *"advertised.listeners cannot use the nonroutable meta-address 0.0.0.0"*.
 - Committed profile (`application-stg-it.yml`) holds everything non-secret with `FILL-ME` markers; only the gate and credentials come from the environment. A guard should refuse to run while a marker remains, and refuse any endpoint matching `(?i)(?<!non)prod|uat`.
+
+## Bring-up verification
+
+When porting or first wiring a suite, run these in order — each is a decision point, not a formality:
+
+```
+Bring-up progress:
+- [ ] 1. ./gradlew build on a machine with no Docker/VPN/credentials → green
+- [ ] 2. integrationTest with nothing configured → every test SKIPPED, build green
+- [ ] 3. Gate env var set, credentials absent → fail-fast listing what is missing
+- [ ] 4. An endpoint pointed at a uat/prod host → refuses to run before any write
+- [ ] 5. First real run bootstraps golden files and fails on purpose → read every file
+- [ ] 6. Re-run → green. Run twice in a row → still green (idempotency + settle races)
+- [ ] 7. kill -9 mid-run, then re-run → sweeper reports what it removed, verify stays quiet
+- [ ] 8. Golden files committed; nightly job wired with the separate coverage verification
+```
 
 ## Review checklist
 

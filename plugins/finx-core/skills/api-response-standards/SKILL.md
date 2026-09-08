@@ -30,7 +30,7 @@ Exactly three top-level blocks, always present:
 
 Do not define a new envelope: the cluster's shared type carries this shape (`FsapApiResponse` for `fsap-*`, `ResponseApi` otherwise).
 
-## HTTP status (ARB decision, 2026-08)
+## HTTP status
 
 | Situation | HTTP | `status.code` |
 |---|---|---|
@@ -42,7 +42,7 @@ Do not define a new envelope: the cluster's shared type carries this shape (`Fsa
 | No / invalid / expired token | 401 | `FAILURE` |
 | Authenticated but missing a *functional* permission | 403 | `FAILURE` |
 | Rate limit / throttling | 429 + `Retry-After` | `FAILURE` |
-| Our own bug (NPE, unexpected exception) | 500 | `FAILURE` |
+| A bug in this service (NPE, unexpected exception) | 500 | `FAILURE` |
 | A dependency is down (Aurora/Redis/Kafka/partner 5xx) | 503 | `FAILURE` |
 
 Hard rules: a business rule never answers 400 or 500. `400` only exists at the validation layer, before the service is reached. `500` only comes from the global exception handler — never thrown deliberately for a business outcome. `429` is rate limiting only; OTP is `428`.
@@ -104,4 +104,13 @@ MEDIUM    file:line  traceparent not propagated to the Kafka producer
 
 Severity: anything that can double-charge or leak data = CRITICAL; wrong status class = HIGH; envelope/format drift = MEDIUM.
 
-**Known doc inconsistency (2026-09):** EN/1881178169 §9 tabulates downstream timeout as `504 CLIENT_TIMEOUT` while its own prose and the §17 PR checklist say 200 + `PROCESSING`/`UNKNOWN`; the child catalog EN/1896415349 still maps every business code to HTTP 200, predating the ARB decision by two days. This skill follows the newer ARB parent page and the never-FAILURE invariant both agree on.
+## Source conflicts
+
+<details>
+<summary>Where the source pages disagree, and which one this skill follows</summary>
+
+- EN/1881178169 §9 tabulates a downstream timeout as `504 CLIENT_TIMEOUT`, while the same section's prose and the §17 PR checklist say 200 + `PROCESSING`/`UNKNOWN`. This skill follows the never-FAILURE invariant both agree on, and 200 + `PROCESSING`, because a 5xx invites the automatic client retry the rule exists to prevent.
+- EN/1896415349 (the `status.code` catalog) maps every business code to HTTP 200. It predates the ARB decision recorded on its own parent page by two days and has not been updated. Follow the parent.
+- EN/514525000 (2022) predates the envelope entirely; use it for naming and general Java rules only.
+
+</details>
