@@ -2,6 +2,51 @@
 
 All notable changes to the `finx-core` plugin are documented here. Follows [Semantic Versioning](https://semver.org/).
 
+## [2.1.0] - 2026-09-08
+
+### Added
+
+- **`/flow save` and `/flow resume <handle>`.** There was no way to pause. `/flow reset`
+  archives the plan and returns to idle, which is wrong for "I am going to `/clear`
+  and carry on" — so the only route was asking Claude in prose to write a summary.
+  `/flow save` writes the breadcrumb, keeps `phase` and `activePlan`, and reports a
+  four-character handle. After `/clear`, `/flow resume <handle>` loads exactly that one.
+
+  The handle exists because **nothing on disk links a new session to the one it
+  replaced**. Every field in the transcript format was checked: `parentUuid` threads
+  messages inside a session and there is no session-to-session pointer. Claude Code
+  also keeps the old transcript after `/clear`, so "which transcript died" cannot
+  answer it either. Rather than infer and sometimes load a stranger's context, the
+  engineer carries four characters across. `SessionStart` still offers a lone
+  breadcrumb under 15 minutes old with no handle needed; with several candidates it
+  lists handle, age and task and waits.
+
+### Fixed
+
+- **Resume breadcrumbs no longer collide between parallel sessions.** They were keyed
+  by repo alone (`<hub>/state/<repo-slug>.md`) and appended to by the `PreCompact`
+  hook, so every session in a repo wrote into one file and every new session read
+  whatever had accumulated. That is the same collision 2.0.0 removed from flow state,
+  left behind in the resume path. Now `<hub>/state/<repo-slug>/<handle>.md`, one file
+  per session, rewritten whole rather than appended.
+
+- **An auto-compaction can no longer overwrite a `/flow save`.** The `PreCompact`
+  snapshot replaces only the text below a `<!-- finx-auto-snapshot -->` divider; a
+  hand-written save above it survives, and a second snapshot replaces the first
+  instead of stacking.
+
+- Breadcrumbs older than 7 days are now garbage-collected. Previously nothing removed
+  them.
+
+### Changed
+
+- **Corrected an overstatement in the 2.0.0 notes.** They said session files are
+  "dropped when the matching transcript under `~/.claude/projects/` is gone, or after
+  30 days". Transcripts survive `/clear`, so in practice the transcript test almost
+  never fires and GC is TTL-driven. The check is kept — it is still right when an
+  engineer prunes transcripts, and `live and ...` makes it fail toward keeping state
+  rather than deleting live work — but the behaviour is TTL, not liveness.
+
 ## [2.0.0] - 2026-09-08
 
 ### Changed
