@@ -7,7 +7,7 @@ A shared [Claude Code](https://claude.com/claude-code) plugin (`finx-core`) that
 ## Quickstart
 
 ```
-/plugin marketplace add <internal-git-url>
+/plugin marketplace add https://github.com/BaoLy-CMC/claude-conventions.git
 /plugin install finx-core@finx-conventions
 /reload-plugins
 ```
