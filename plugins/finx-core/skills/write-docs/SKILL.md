@@ -1,6 +1,6 @@
 ---
 name: write-docs
-description: Write or update documentation and place it where the user wants — local repo, Confluence, or a given path — in the format they choose (Markdown, Confluence page, or HTML). Use when the user says "write docs", "document this", "create a doc/guide/runbook", "publish to Confluence", "generate documentation". Always asks format + destination before writing; never publishes externally without confirmation.
+description: Use when the user says "write docs", "document this", "create a doc/guide/runbook", "publish to Confluence", or "generate documentation".
 ---
 
 # Write Docs

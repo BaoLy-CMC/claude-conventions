@@ -1,6 +1,6 @@
 ---
 name: integration-test
-description: Apply the FinX integration-test standard — which layer a test belongs to, the opt-in src/integrationTest source set that skips without configuration, containers vs a shared environment, captured-payload inputs, value/shape/behaviour assertions, run-marker cleanup on a shared database, and separate coverage gating. Use when adding or reviewing an integration test, wiring an integrationTest Gradle task, choosing between a Testcontainer and STG, deciding what to assert, or debugging a flaky/duplicate-dropped test. Source: Confluence EN/1936294017 (standard) + EN/1941569537 (port procedure, reference implementation transaction-posting-service).
+description: Use when adding or reviewing an integration test, wiring an integrationTest Gradle task, choosing between a Testcontainer and a shared environment, deciding what to assert, or debugging a flaky or duplicate-dropped test.
 ---
 
 # Integration Test

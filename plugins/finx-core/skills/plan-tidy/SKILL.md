@@ -1,6 +1,6 @@
 ---
 name: plan-tidy
-description: Migrate scattered plan files into the hub's structured plans layout. Use when the user says "tidy plans", "organize plans", "clean up plan files", "migrate plans", "gather plans from every repo", or when loose plan*.md / *-plan.md files are cluttering repo roots. Moves files with confirmation — never deletes or overwrites silently.
+description: Use when the user says "tidy plans", "organize plans", "clean up plan files", "migrate plans", "gather plans from every repo", or when loose plan*.md files clutter repo roots.
 ---
 
 # Plan Tidy — gather loose plans into the hub

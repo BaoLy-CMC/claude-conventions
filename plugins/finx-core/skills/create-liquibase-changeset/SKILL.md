@@ -1,6 +1,6 @@
 ---
 name: create-liquibase-changeset
-description: Scaffold a new Liquibase changeset in the non-prod-liquibase repo following the strictly-enforced format. Use when the user wants a DB migration, schema change, "add column/table/index/enum", reference-data change, or says "create changeset", "new migration", "liquibase change". DB changes must NOT go in the service repo — they belong in non-prod-liquibase as XML changesets.
+description: Use when the user wants a DB migration or schema change, says "add column/table/index/enum", "create changeset", "new migration", "liquibase change", or asks where a schema change belongs. Schema changes never go in the service repo.
 ---
 
 # Create Liquibase Changeset

@@ -1,6 +1,6 @@
 ---
 name: logging-review
-description: Review Java/Spring Boot logging against the FinX logging convention. Use when reviewing or writing logging code, adding log statements, or when asked to "check logging", "review logs", or before a PR touching log lines. Checks DEBUG-by-default, no PII/secrets in logs, mask() usage, SLF4J parameterization, no log-and-throw, no full-object/collection logging. Source: Confluence EN/1448280077 (Backend - Logging Convention v1.6).
+description: Use when writing or reviewing logging code, adding log statements, or when asked to "check logging", "review logs", or before a PR touching log lines.
 ---
 
 # Logging Review

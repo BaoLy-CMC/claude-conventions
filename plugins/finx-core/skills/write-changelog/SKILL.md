@@ -1,6 +1,6 @@
 ---
 name: write-changelog
-description: Refine a drafted CHANGELOG entry for a release - turn terse conventional-commit lines into clear, user-facing notes that say what changed and why. Use after running changelog.sh (or release.sh), when preparing a release, or when the user says "write changelog", "refine changelog", "changelog for this release". Report the refined entry for approval; do not commit or tag.
+description: Use after running changelog.sh or release.sh, when preparing a release, or when the user says "write changelog", "refine changelog", or "changelog for this release".
 ---
 
 # Write Changelog (refine step)

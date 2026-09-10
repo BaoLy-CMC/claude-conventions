@@ -2,6 +2,18 @@
 
 All notable changes to the `finx-core` plugin are documented here. Follows [Semantic Versioning](https://semver.org/).
 
+## [2.2.0] - 2026-09-10
+
+### Changed
+
+- **Skill `description:` rewritten as routing rules.** Every `description` sits in the
+  system prompt for the whole session whether or not the skill ever fires, so the 19
+  finx-core skills were costing ~3,050 tokens of always-on context. The descriptions
+  restated what each skill contains and cited its Confluence source, neither of which
+  helps the model decide when to fire. They now carry only the trigger phrases. Skill
+  bodies are unchanged, so nothing is lost — the detail loads on invocation as before.
+  Description text drops from 8,315 to 3,607 characters (57%).
+
 ## [2.1.0] - 2026-09-08
 
 ### Added

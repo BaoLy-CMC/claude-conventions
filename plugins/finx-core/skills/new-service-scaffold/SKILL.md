@@ -1,6 +1,6 @@
 ---
 name: new-service-scaffold
-description: Scaffold a new FinX backend microservice or a new endpoint/module following the standard project structure and conventions. Use when the user wants to "create a new service", "bootstrap a service", "scaffold a module", "add a new controller/endpoint" from scratch, or asks how to lay out a new backend service. Source: Confluence EN/514528555 (Project structure template).
+description: Use when the user says "create a new service", "bootstrap a service", "scaffold a module", "add a new controller/endpoint" from scratch, or asks how to lay out a new backend service.
 ---
 
 # New Service / Endpoint Scaffold

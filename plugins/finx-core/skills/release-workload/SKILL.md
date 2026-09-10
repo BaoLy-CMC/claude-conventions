@@ -1,6 +1,6 @@
 ---
 name: release-workload
-description: Drive a production release through the platform-release-processes repo — the three stages (release_uat cuts the branch, pre_release tags, release opens the workload PR and publishes the Confluence checklist), the YAML an engineer adds per date and team, the .done idempotency marker, and the tag-immutability / roll-forward rule. Use when asked to release a service to production, cut a release branch, tag a version, re-run a release folder, or when a release stage did nothing after merge. Source: Confluence EN/1908572168 (v1.0).
+description: Use when asked to release a service to production, cut a release branch, tag a version, re-run a release folder, or when a release stage did nothing after merge.
 ---
 
 # Release Workload

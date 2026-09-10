@@ -1,6 +1,6 @@
 ---
 name: flow
-description: Drive and track the enforced FinX dev flow — explore → plan → execute → review → reset — with per-session state in the hub. Use when the user says "/flow", "start flow", "flow status", "next phase", "explore [task]", "move to execute", "review", "save before clearing", "resume my previous session", "reset flow", or when beginning non-trivial work that should follow the disciplined flow. Named `flow` (single command with a phase arg) to avoid colliding with any personal explore/plan/execute/reset skills.
+description: Use when the user says "/flow", "start flow", "flow status", "next phase", "explore [task]", "move to execute", "review", "save before clearing", "resume my previous session", "reset flow", or when starting non-trivial work.
 ---
 
 # FinX Dev Flow

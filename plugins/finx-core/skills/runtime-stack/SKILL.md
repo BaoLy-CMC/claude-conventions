@@ -1,6 +1,6 @@
 ---
 name: runtime-stack
-description: Detect a project's Java (21 or 25) and Spring Boot (3 or 4) version and apply the matching rules — which language features and APIs are allowed, and what differs between versions. Use before writing or upgrading code, choosing an API, or when the user mentions Java 21/25, Spring Boot 3/4, Jakarta, Jackson, or a version migration. Never use features newer than the project's declared version.
+description: Use before writing or upgrading code, choosing an API, or when the user mentions Java 21/25, Spring Boot 3/4, Jakarta, Jackson, or a version migration. Never use features newer than the declared version.
 ---
 
 # Runtime Stack (per project)

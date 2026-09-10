@@ -1,6 +1,6 @@
 ---
 name: api-response-standards
-description: Apply the FinX API request/response contract — the status/payload/meta envelope, the ARB HTTP-status mapping (422 business, 409 conflict, 428 action required), empty vs not-found, idempotency and retry on money paths, downstream-timeout handling, partial batches, async jobs, and W3C trace propagation. Use when writing or reviewing a controller, a response DTO, a GlobalExceptionHandler, an idempotency key, a money-movement endpoint, or when choosing between 400/422/428/409/503/504. Source: Confluence EN/1881178169 + EN/1896415349.
+description: Use when writing or reviewing a controller, a response DTO, a GlobalExceptionHandler, an error envelope, an idempotency key, or a money-movement endpoint, or when choosing between 400/422/428/409/503/504.
 ---
 
 # API Response Standards

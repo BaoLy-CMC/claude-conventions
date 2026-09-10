@@ -1,6 +1,6 @@
 ---
 name: pre-ship
-description: Run the full verification gate before a PR or ship — build, Checkstyle, tests with coverage, the finx review skills, and (if available) the SonarQube quality gate — and emit one PASS/FAIL report. Use when the user says "pre-ship", "ready to ship", "run checks", "verify before PR", or at the review phase of the flow. Distinct from the personal `/verify` command: this also runs the review skills and Sonar and aggregates a single verdict.
+description: Use when the user says "pre-ship", "ready to ship", "run checks", "verify before PR", or at the review phase of the flow. Broader than `/verify` — also runs the review skills and the Sonar gate.
 ---
 
 # Pre-Ship Gate

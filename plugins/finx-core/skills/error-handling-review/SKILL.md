@@ -1,6 +1,6 @@
 ---
 name: error-handling-review
-description: Review Java/Spring Boot error handling against the FinX error-handling & exception standards. Use when reviewing or writing exceptions, error codes, HTTP status mapping, GlobalExceptionHandler, or API response envelopes, or when asked to "check error handling" before a PR. Checks ErrorCode DOMAIN.CODE enum usage, correct HTTP status (business→4xx not 500), log-once-handle-once, and cluster-correct response envelope. Source: Confluence EN/1448247327 (Backend - Error handling & exception standards).
+description: Use when writing or reviewing exceptions, error codes, HTTP status mapping, a GlobalExceptionHandler, or response envelopes, or when asked to "check error handling" before a PR.
 ---
 
 # Error Handling Review

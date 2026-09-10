@@ -1,6 +1,6 @@
 ---
 name: onboarding
-description: Guided first-run tour of the finx-core plugin — what is always on, what loads on demand, how the flow works, and which per-engineer options are opt-in — then wires up the chosen options. Use when finx-core was just installed, when the session-start onboarding notice appears, or when an engineer asks "what does this plugin do", "how do I use finx-core", "onboarding", "getting started", or wants a refresher on the flow and the available skills.
+description: Use when finx-core was just installed, when the session-start onboarding notice appears, or when an engineer asks "what does this plugin do", "how do I use finx-core", "onboarding", or "getting started".
 ---
 
 # finx-core Onboarding

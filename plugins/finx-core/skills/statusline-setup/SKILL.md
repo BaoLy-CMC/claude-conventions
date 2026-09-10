@@ -1,6 +1,6 @@
 ---
 name: statusline-setup
-description: Enable the FinX flow-aware powerline statusline for this engineer. Wires finx-statusline.sh into the user's own ~/.claude/settings.json. Use when the user says "finx statusline", "setup statusline", "enable status bar", "show flow phase in the bar", or asks how to turn on the FinX status line. Never overwrites an existing statusLine without asking.
+description: Use when the user says "finx statusline", "setup statusline", "enable status bar", "show flow phase in the bar", or asks how to turn on the FinX status line.
 ---
 
 # FinX Statusline Setup

@@ -1,6 +1,6 @@
 ---
 name: ops-runtime
-description: Runtime standards for a FinX Java workload — Kubernetes probes, JVM heap and GC flags, HPA, graceful shutdown, actuator/metrics wiring, and creating an index on a production PostgreSQL/Aurora table. Use when editing values.yaml in non-prod-application-workload or prod-application-workload, tuning resources or autoscaling, wiring health checks or Prometheus, diagnosing OOMKill / rollout downtime / traffic during shutdown, or planning a CREATE INDEX on a large production table. Source: Confluence EN/1897496583, EN/1707409479, EN/514541756.
+description: Use when editing values.yaml in non-prod/prod-application-workload, tuning resources or autoscaling, wiring probes or Prometheus, diagnosing OOMKill or rollout downtime, or planning a CREATE INDEX on a large production table.
 ---
 
 # Ops Runtime

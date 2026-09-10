@@ -1,6 +1,6 @@
 ---
 name: plans
-description: Manage development plans across all repos under a single hub. Use when the user says "list plans", "show plans", "which plan is active", "plan status", "too many plans", "new plan", "archive plan", or when a plan needs creating/activating/closing. Keeps plans out of repo roots and tracks one active plan per session.
+description: Use when the user says "list plans", "show plans", "which plan is active", "plan status", "too many plans", "new plan", "archive plan", or when a plan needs creating, activating, or closing.
 ---
 
 # Plan Management

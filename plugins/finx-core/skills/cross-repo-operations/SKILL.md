@@ -1,6 +1,6 @@
 ---
 name: cross-repo-operations
-description: Route infrastructure changes to the correct GitOps repo instead of the service repo. Use when adding a Kafka topic, an important environment variable, or exposing a public API to mobile/partners, or when asked where a DB migration / topic / env / gateway route belongs. Applies to NON-PROD only; prod goes through a separate release process.
+description: Use when adding a Kafka topic or an environment variable, exposing a public API to mobile/partners, or asking which repo a DB migration, topic, env, or gateway route belongs in. NON-PROD only.
 ---
 
 # Cross-Repo Operations Routing

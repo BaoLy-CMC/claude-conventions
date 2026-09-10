@@ -1,6 +1,6 @@
 ---
 name: flow-setup
-description: Configure the FinX dev flow per engineer (or per project) — hub location, enforcement level, context-watch threshold, trivial-change threshold, plan guards. Use when the user says "flow setup", "configure flow", "set enforcement", "where are my plans stored", "change the hub", "change context threshold", "customize flow", or on first adoption of the flow in a repo. Writes flow-config.json; the flow-gate and context-watch hooks read it, falling back to standard defaults.
+description: Use when the user says "flow setup", "configure flow", "set enforcement", "where are my plans stored", "change the hub", "change context threshold", "customize flow", or adopts the flow in a repo for the first time.
 ---
 
 # Flow Setup
